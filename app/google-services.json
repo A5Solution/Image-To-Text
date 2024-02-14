@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "874976018172",
-    "project_id": "image-to-text-4f3c2",
-    "storage_bucket": "image-to-text-4f3c2.appspot.com"
+    "project_number": "23352741614",
+    "project_id": "image-to-text-app-f3efb",
+    "storage_bucket": "image-to-text-app-f3efb.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:874976018172:android:3e1ffd9eb5466ac2ad2179",
+        "mobilesdk_app_id": "1:23352741614:android:fe128e2808f2a97f11adff",
         "android_client_info": {
-          "package_name": "com.example.image_to_text"
+          "package_name": "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyACuPnXflp-9UjNuPyENTB31iaRptLhcjU"
+          "current_key": "AIzaSyCR1bGE2kq4As8SL8MQam1bd7K7XTXpwIw"
         }
       ],
       "services": {

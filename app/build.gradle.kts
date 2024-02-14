@@ -9,8 +9,8 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.image_to_text"
-        minSdk = 24
+        applicationId = "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -30,27 +30,36 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures {
         compose = true
         prefab = true
-
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    packagingOptions {
+        excludes += "META-INF/INDEX.LIST"
+        excludes += "META-INF/DEPENDENCIES"
+    }
 }
+
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -65,18 +74,35 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.mlkit:vision-common:17.3.0")
     implementation("com.google.firebase:firebase-database:20.3.0")
-    implementation("com.google.mlkit:language-id-common:16.1.0")
-    implementation("com.google.firebase:firebase-ml-natural-language:24.1.0")
+    implementation("com.google.mlkit:language-id:17.0.4")
+    implementation("com.google.android.gms:play-services-vision-common:19.1.3")
+    implementation("com.google.firebase:firebase-ml-vision:24.1.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("com.google.android.gms:play-services-mlkit-language-id:17.0.0")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
+
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0") {
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:18.0.2") {
         exclude(group = "com.google.android.gms", module = "play-services-vision")
         exclude(group = "com.google.android.gms", module = "play-services-vision-common")
     }
-}
+    implementation("org.apache.tika:tika-core:1.27")
+    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-bom:29.0.0")
+    implementation ("com.google.android.gms:play-services-vision:20.1.3")
+    implementation ("com.google.cloud:google-cloud-translate:2.2.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.google.mlkit:translate:17.0.2")
 
+
+
+
+
+}

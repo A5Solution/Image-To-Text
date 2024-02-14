@@ -1,6 +1,5 @@
 package com.example.image_to_text.ui
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -15,12 +14,10 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.FirebaseApp
-import com.google.mlkit.nl.languageid.LanguageIdentification
-import com.google.mlkit.nl.languageid.LanguageIdentifier
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.text.FirebaseVisionText
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_CAMERA = 1
@@ -33,8 +30,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.example.image_to_text.R.layout.activity_main)
         FirebaseApp.initializeApp(this)
+        setContentView(com.example.image_to_text.R.layout.activity_main)
+
         editText = findViewById<EditText>(com.example.image_to_text.R.id.editText)
         imageViewCamera = findViewById<ImageView>(com.example.image_to_text.R.id.imageViewCamera)
         imageViewGallery = findViewById<ImageView>(com.example.image_to_text.R.id.imageViewGallery)
@@ -44,12 +42,14 @@ class MainActivity : AppCompatActivity() {
 
         imageViewGallery?.setOnClickListener(View.OnClickListener { openGallery() })
     }
+
     private fun openCamera() {
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (cameraIntent.resolveActivity(packageManager) != null) {
             startActivityForResult(cameraIntent, REQUEST_CAMERA)
         }
     }
+
     private fun openGallery() {
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(galleryIntent, REQUEST_GALLERY)
@@ -65,73 +65,61 @@ class MainActivity : AppCompatActivity() {
                     val imageBitmap: Bitmap? = extras?.get("data") as? Bitmap
                     imageViewPhoto?.setImageBitmap(imageBitmap)
 
-                    // Convert the captured bitmap to InputImage
+                    // Convert the captured bitmap to FirebaseVisionImage
                     imageBitmap?.let { processImage(it) }
                 }
                 REQUEST_GALLERY -> {
                     val selectedImageUri: Uri? = data?.data
                     imageViewPhoto?.setImageURI(selectedImageUri)
 
-                    // Convert the selected image URI to InputImage
+                    // Convert the selected image URI to FirebaseVisionImage
                     selectedImageUri?.let {
-                        val inputStream = contentResolver.openInputStream(it)
-                        val bitmap = BitmapFactory.decodeStream(inputStream)
-                        processImage(bitmap)
+                        try {
+                            val inputStream = contentResolver.openInputStream(it)
+                            val bitmap = BitmapFactory.decodeStream(inputStream)
+                            processImage(bitmap)
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
                     }
                 }
             }
         }
     }
+
     private fun processImage(bitmap: Bitmap) {
-        val image = InputImage.fromBitmap(bitmap, 0)
-        val options = TextRecognizerOptions.Builder()
-            // Add any desired options here
-            .build()
+        val image = FirebaseVisionImage.fromBitmap(bitmap)
+        val recognizer = FirebaseVision.getInstance().onDeviceTextRecognizer
 
-        val recognizer = TextRecognition.getClient(options)
-
-        recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                val resultText = visionText.text
-                editText?.setText(resultText)
-
-                // Identify the language of the recognized text
-                identifyLanguage(resultText)
+        recognizer.processImage(image)
+            .addOnSuccessListener { firebaseVisionText ->
+                // Task completed successfully
+                processTextRecognitionResult(firebaseVisionText)
             }
             .addOnFailureListener { e ->
+                // Task failed with an exception
                 Log.e("TAG", "Text recognition failed: $e")
                 Toast.makeText(this, "Text recognition failed", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun identifyLanguage(text: String) {
-        val languageIdentifier = LanguageIdentification.getClient()
-
-        languageIdentifier.identifyLanguage(text)
-            .addOnSuccessListener { languageCode ->
-                // Process the recognized language
-                processRecognizedLanguage(languageCode, text)
+    private fun processTextRecognitionResult(texts: FirebaseVisionText) {
+        val blocks = texts.textBlocks
+        if (blocks.size == 0) {
+            Toast.makeText(this, "No text found", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val stringBuilder = StringBuilder()
+        for (block in blocks) {
+            val lines = block.lines
+            for (line in lines) {
+                val elements = line.elements
+                for (element in elements) {
+                    stringBuilder.append(element.text).append(" ")
+                }
+                stringBuilder.append("\n")
             }
-            .addOnFailureListener { e ->
-                Log.e("TAG", "Language identification failed: $e")
-                Toast.makeText(this, "Language identification failed", Toast.LENGTH_SHORT).show()
-            }
+        }
+        editText?.setText(stringBuilder.toString())
     }
-
-
-    private fun processRecognizedLanguage(languageCode: String, text: String) {
-        // Now you have the language code (e.g., "en" for English)
-        // You can implement logic here to handle different languages
-        // For example, you could have different text processing logic for different languages
-        Log.d("TAG", "Detected language: $languageCode")
-
-        // Set the recognized text into the EditText
-        editText?.setText(text)
-    }
-
-
-
-
-
-
 }
