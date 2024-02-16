@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_remove_ads"
+        android:title="Remove Ads"
+        android:icon="@drawable/ic_remove_ads"
+        app:iconTint="#FFC107"/>
+
+    <item
+        android:id="@+id/menu_app_language"
+        android:title="App Language"
+        android:icon="@drawable/ic_language"
+        app:iconTint="@color/white"/>
+
+    <item
+        android:id="@+id/menu_share_app"
+        android:title="Share App"
+        android:icon="@drawable/ic_share"
+        app:iconTint="@color/white"/>
+
+    <item
+        android:id="@+id/menu_privacy_policy"
+        android:title="Privacy Policy"
+        android:icon="@drawable/ic_privacy_policy"
+        app:iconTint="@color/white"/>
+
+    <item
+        android:id="@+id/menu_rate_app"
+        android:title="Rate App"
+        android:icon="@drawable/ic_rate_us"
+        app:iconTint="@color/white"/>
+
+    <item
+        android:id="@+id/menu_more_app"
+        android:title="More App"
+        android:icon="@drawable/ic_more_apps"
+        app:iconTint="@color/white"/>
+</menu>
+

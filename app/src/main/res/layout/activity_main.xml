@@ -1,64 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:id="@+id/drawerLayout"
+    android:gravity="start">
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:hint="Text will be displayed here" />
-
+    <!-- Content layout -->
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Custom Toolbar -->
+
+            <!-- Toolbar content -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <!-- Menu Icon -->
+                <ImageView
+                    android:id="@+id/menu"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/drawer_menu"
+                    android:padding="15dp" />
+
+                <!-- Title -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Image To Text"
+                    android:textStyle="bold"
+                    android:textSize="24sp"
+                    android:layout_marginStart="100dp"
+                    android:layout_gravity="center|center_horizontal"/>
+
+                <!-- History Icon -->
+                <ImageView
+                    android:id="@+id/history"
+                    android:layout_width="70dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/rectangle"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="100dp"
+                    android:padding="10dp"
+                    android:src="@drawable/history"/>
+
+            </LinearLayout>
+
+
+        <!-- Main content area -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- EditText for displaying text -->
+
+
+            <!-- LinearLayout for camera and gallery buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editText"
+                android:layout_alignTop="@id/editText"
+                android:layout_marginTop="55dp"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <!-- Camera Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/imageViewCamera"
+                    android:layout_width="170dp"
+                    android:layout_height="50dp"
+                    android:text="Camera"
+                    android:background="@drawable/background_curve"
+                    app:icon="@drawable/camera"
+                    />
+
+                <!-- Gallery Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/imageViewGallery"
+                    android:layout_width="170dp"
+                    android:layout_height="50dp"
+                    android:text="Gallery"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/background_curve"
+                    app:icon="@drawable/gallery" />
+
+            </LinearLayout>
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="8dp"> <!-- Adjust elevation as needed -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <!-- First child LinearLayout -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="start|center">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Select Language to Translate  "/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/destinationLanguageChooseBtn"
+                                android:layout_width="140dp"
+                                android:layout_height="40dp"
+                                android:textSize="10sp"
+                                android:text="select language"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Add EditText and other views here -->
+                    <EditText
+                        android:id="@+id/sourceLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter text"
+                        android:background="@android:color/transparent"
+                        android:layout_marginTop="20dp"
+                        android:height="160dp"
+                        android:gravity="top"/>
+
+                    <!-- Add share and copy images -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="end">
+
+                        <ImageView
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/share_black"
+                            android:layout_margin="8dp"/>
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/copy"
+                            android:layout_margin="8dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <!-- ImageView for displaying captured photo -->
+            <ImageView
+                android:id="@+id/imageViewPhoto"
+                android:layout_width="320dp"
+                android:visibility="gone"
+                android:layout_height="320dp"
+                android:layout_below="@id/imageViewCamera"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:contentDescription="Captured Photo"
+                android:scaleType="fitCenter" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                >
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/translateBtn"
+                    android:layout_width="170dp"
+                    android:layout_height="45dp"
+                    android:text="Translate"
+                    android:background="@drawable/background_curve"
+                    android:layout_marginEnd="16dp"
+                    app:icon="@drawable/translate" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editText"
-        android:layout_alignTop="@id/editText"
-        android:layout_marginTop="55dp"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <ImageView
-            android:id="@+id/imageViewCamera"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_below="@id/editText"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="0dp"
-            android:contentDescription="Open Camera"
-            android:src="@drawable/camera" />
-
-        <ImageView
-            android:id="@+id/imageViewGallery"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_below="@id/editText"
-            android:layout_marginStart="19dp"
-            android:layout_marginTop="0dp"
-            android:layout_toEndOf="@id/imageViewCamera"
-            android:contentDescription="Open Gallery"
-            android:src="@drawable/gallery" />
+        android:layout_alignParentBottom="true"
+        >
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:adSize="BANNER"
+            app:adUnitId="@string/banner_ad_unit_id" />
     </LinearLayout>
 
+    <!-- Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="#184A6C"
+        app:itemTextColor="@color/white"
+        app:itemIconTint="@color/white"
+        android:layout_gravity="start"
+        app:menu="@menu/drawer_menu" />
 
-    <ImageView
-        android:id="@+id/imageViewPhoto"
-        android:layout_width="320dp"
-        android:layout_height="320dp"
-        android:layout_below="@id/imageViewCamera"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="0dp"
-        android:contentDescription="Captured Photo"
-        android:scaleType="fitCenter" />
-
-</LinearLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

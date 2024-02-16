@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><!-- background_with_curved_edges.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#383D5A"/> <!-- Change the color as needed -->
+    <corners android:radius="20dp"/> <!-- Adjust the radius to control the curvature of the edges -->
+</shape>
