@@ -2,30 +2,40 @@ package com.example.image_to_text.ui
 
 import android.app.Activity
 import android.app.Dialog
-import android.app.ProgressDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.history.HistoryActivity
+import com.example.image_to_text.ui.nativead.NativeAdActivity
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
@@ -41,6 +51,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Locale
 
@@ -51,6 +63,7 @@ class MainActivity : AppCompatActivity() {
     private var imageViewCamera: MaterialButton? = null
     private var imageViewGallery: MaterialButton? = null
     private var imageViewPhoto: ImageView? = null
+    private var history: ImageView? = null
     private var menu: ImageView? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var languageArrayList: ArrayList<ModelLanguage>
@@ -63,7 +76,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var translateBtn: MaterialButton
     private lateinit var sourceLanguage: EditText
     private lateinit var progressDialog: Dialog
-
+    private lateinit var navigationView: NavigationView
+    private lateinit var copy: ImageView
+    private lateinit var share: ImageView
 
 
 
@@ -71,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         setContentView(com.example.image_to_text.R.layout.activity_main)
+
         loadAvailableLanguages()
         destinationLanguageChooseBtn = findViewById<MaterialButton>(R.id.destinationLanguageChooseBtn)
         destinationLanguageChooseBtn.setOnClickListener {
@@ -80,8 +96,20 @@ class MainActivity : AppCompatActivity() {
         translateBtn.setOnClickListener {
             validateData()
         }
-
-
+        history = findViewById(R.id.history)
+        history?.setOnClickListener {
+            val intent = Intent(this, HistoryActivity::class.java)
+            startActivity(intent)
+        }
+        val yourString=sourceLanguage.text.toString()
+        copy = findViewById(R.id.copy)
+        share = findViewById(R.id.share)
+        copy.setOnClickListener {
+            yourString?.let { it1 -> copyTextToClipboard(it1) }
+        }
+        share.setOnClickListener {
+            yourString?.let { it1 -> shareImageAndText(it1) }
+        }
         sourceLanguage = findViewById(R.id.sourceLanguage)
 
         menu = findViewById<ImageView>(R.id.menu)
@@ -92,6 +120,7 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.openDrawer(GravityCompat.START)
         }
 
+
         // Add ActionBarDrawerToggle to handle opening and closing the drawer
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -99,6 +128,65 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+
+        navigationView=findViewById(R.id.navigationView)
+        navigationView.setNavigationItemSelectedListener { menu->
+            when (menu.itemId){
+                R.id.menu_remove_ads -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    true
+                }
+                R.id.text_to_text -> {
+                    val intent = Intent(this, TranslationsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.menu_app_language -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    true
+                }
+                R.id.menu_share_app -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    true
+                }
+                R.id.menu_privacy_policy -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    val websiteUri = Uri.parse("https://sites.google.com/view/image-to-text-ocr-extract/home") // Replace "https://example.com" with your website URL
+                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                    startActivity(intent)
+                    true
+                }
+                R.id.menu_rate_app -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
+                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                    startActivity(intent)
+                    true
+                }
+                R.id.menu_more_app -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    val websiteUri = Uri.parse("https://play.google.com/store/apps/developer?id=Sparx+Developer") // Replace "https://example.com" with your website URL
+                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                    startActivity(intent)
+                    true
+                }
+                R.id.terms_and_condotions -> {
+                    // Handle click on the item
+                    // For example, you can perform some action here
+                    val websiteUri = Uri.parse("https://sites.google.com/view/terms-and-conditions-image-to-/home") // Replace "https://example.com" with your website URL
+                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
         val adView: AdView = findViewById(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
@@ -108,22 +196,111 @@ class MainActivity : AppCompatActivity() {
         imageViewGallery = findViewById<MaterialButton>(R.id.imageViewGallery)
         imageViewPhoto = findViewById<ImageView>(R.id.imageViewPhoto)
 
-        imageViewCamera?.setOnClickListener { openCamera() }
-        imageViewGallery?.setOnClickListener { openGallery() }
-    }
+        imageViewCamera?.setOnClickListener {
+            openCamera()
+            val intent = Intent(this, NativeAdActivity::class.java)
+            startActivity(intent)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            // Handle other action bar items here if needed
-            else -> super.onOptionsItemSelected(item)
+        }
+        imageViewGallery?.setOnClickListener {
+            openGallery()
+            val intent = Intent(this, NativeAdActivity::class.java)
+            startActivity(intent)
         }
     }
+    private fun copyTextToClipboard(text: String) {
+        val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("text", text)
+        clipboardManager.setPrimaryClip(clipData)
+        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun shareImageAndText(text: String) {
+        // Create a directory to store text file
+        val directory = File(filesDir, "images")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+
+        // Create a text file and save the text
+        val textFile = File(directory, "text.txt")
+        FileOutputStream(textFile).use { outputStream ->
+            outputStream.write(text.toByteArray())
+            outputStream.flush()
+        }
+
+        // Get the URI of the text file using FileProvider
+        val textUri = FileProvider.getUriForFile(this, "com.example.image_to_text.fileprovider", textFile)
+
+        // Create a share intent
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, textUri)
+            type = "text/plain"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        // Start the activity to share text
+        startActivity(Intent.createChooser(shareIntent, "Share via"))
+    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.drawer_menu, menu) // Replace "your_menu_file_name" with the name of your menu XML file
+
+        // Set click listener for menu items
+        menu?.apply {
+            findItem(R.id.menu_remove_ads)?.setOnMenuItemClickListener {
+                // Handle Remove Ads click
+                true
+            }
+            findItem(R.id.menu_app_language)?.setOnMenuItemClickListener {
+                // Handle App Language click
+                true
+            }
+            findItem(R.id.menu_share_app)?.setOnMenuItemClickListener {
+                // Handle Share App click
+                val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
+                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                startActivity(intent)
+                true
+            }
+            findItem(R.id.menu_privacy_policy)?.setOnMenuItemClickListener {
+                // Handle Privacy Policy click
+                val websiteUri = Uri.parse("https://sites.google.com/view/image-to-text-ocr-extract/home") // Replace "https://example.com" with your website URL
+                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                startActivity(intent)
+                true
+            }
+            findItem(R.id.menu_rate_app)?.setOnMenuItemClickListener {
+                // Handle Rate App click
+                val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
+                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                startActivity(intent)
+                true
+            }
+            findItem(R.id.menu_more_app)?.setOnMenuItemClickListener {
+                // Handle More App click
+                val websiteUri = Uri.parse("https://play.google.com/store/apps/developer?id=Sparx+Developer") // Replace "https://example.com" with your website URL
+                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                startActivity(intent)
+                true
+            }
+            findItem(R.id.terms_and_condotions)?.setOnMenuItemClickListener {
+                // Handle Terms and Conditions click
+                val websiteUri = Uri.parse("https://sites.google.com/view/terms-and-conditions-image-to-/home") // Replace "https://example.com" with your website URL
+                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                startActivity(intent)
+                true
+            }
+        }
+
+        return true
+    }
+
+
     private fun openCamera() {
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (cameraIntent.resolveActivity(packageManager) != null) {
+
             startActivityForResult(cameraIntent, REQUEST_CAMERA)
         } else {
             Toast.makeText(this, "Camera not available", Toast.LENGTH_SHORT).show()
@@ -258,9 +435,17 @@ class MainActivity : AppCompatActivity() {
                 val translatedText = translator.translate(sourceLanguageText).await()
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    Toast.makeText(this@MainActivity, ""+translatedText, Toast.LENGTH_SHORT).show()
+                    val imageViewPhoto = findViewById<ImageView>(R.id.imageViewPhoto)
+                    val bitmap = (imageViewPhoto.drawable as BitmapDrawable).bitmap
 
-                    // translatedText
+                    val file = saveBitmapToFile(bitmap)
+                    val filePath = file.absolutePath
+                    val intent = Intent(applicationContext, ViewTranslationActivity::class.java)
+                    intent.putExtra("imageFilePath", filePath)
+                    intent.putExtra("yourString", translatedText.toString())
+                    startActivity(intent)
+
+
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -269,5 +454,25 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    fun saveBitmapToFile(bitmap: Bitmap): File {
+        // Get the directory for storing images
+        val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyApp")
+        // Create the directory if it doesn't exist
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+        // Create a file to save the image
+        val file = File(directory, "image_${System.currentTimeMillis()}.png")
+        try {
+            // Save the Bitmap to the file
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return file
     }
 }

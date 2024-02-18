@@ -75,7 +75,7 @@ dependencies {
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("com.google.android.gms:play-services-vision-common:19.1.3")
     implementation("com.google.firebase:firebase-ml-vision:24.1.0")
-    implementation("com.google.android.gms:play-services-ads-lite:22.6.0")
+    implementation("com.google.android.gms:play-services-ads:22.6.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

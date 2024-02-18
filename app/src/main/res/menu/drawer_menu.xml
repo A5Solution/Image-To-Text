@@ -6,7 +6,11 @@
         android:title="Remove Ads"
         android:icon="@drawable/ic_remove_ads"
         app:iconTint="#FFC107"/>
-
+    <item
+        android:id="@+id/text_to_text"
+        android:title="Translate Text To Text"
+        android:icon="@drawable/texttotext"
+        app:iconTint="@color/white"/>
     <item
         android:id="@+id/menu_app_language"
         android:title="App Language"
@@ -36,5 +40,11 @@
         android:title="More App"
         android:icon="@drawable/ic_more_apps"
         app:iconTint="@color/white"/>
+    <item
+        android:id="@+id/terms_and_condotions"
+        android:title="Term and Conditions"
+        android:icon="@drawable/termsandconditions"
+        app:iconTint="@color/white"/>
+
 </menu>
 
