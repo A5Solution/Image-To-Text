@@ -18,10 +18,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.database.DatabaseHelper
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.VideoOptions
@@ -41,73 +43,85 @@ class HistoryActivity : AppCompatActivity() {
     private var mInterstitialAd: InterstitialAd? = null
     private var mNativeAd: NativeAd? = null
     private var timerTextView: TextView? = null
+    private lateinit var subscriptionManager: SubscriptionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
-        timerTextView = findViewById(R.id.timer)
+        subscriptionManager = SubscriptionManager(this)
 
-        object : CountDownTimer(5000, 1000) {
-            // 5000 milliseconds (5 seconds), with 1000 milliseconds (1 second) interval
-            override fun onTick(millisUntilFinished: Long) {
-                val secondsLeft =
-                    (millisUntilFinished / 1000).toInt() + 1 // Add 1 to make the range 5 to 1
-                timerTextView?.setText(secondsLeft.toString())
-            }
 
-            override fun onFinish() {
-                timerTextView?.setText("X")
-                timerTextView?.setOnClickListener(View.OnClickListener {
-                    finish()
-                })
-                // Timer finished, do whatever you need here
-            }
-        }.start()
-        loadNativeAd()
+        val adView: AdView = findViewById(R.id.adView)
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            // User is subscribed, hide ads
+            adView?.visibility= View.GONE
+            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+        } else {
+            // User is not subscribed, show ads
+            val adRequest = AdRequest.Builder().build()
+            adView.loadAd(adRequest)
+        }
+        //loadNativeAd()
         recyclerView = findViewById(R.id.recyclerView)
         back = findViewById(R.id.back)
         delete = findViewById(R.id.delete)
 
         back.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setMessage("Loading...")
-                .setCancelable(false)
-                .create()
-                .show()
-            val adRequest = AdRequest.Builder().build()
+            val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+            val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+            val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
-            InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d(ContentValues.TAG, "Ad was loaded.")
-                    mInterstitialAd = interstitialAd
-                    mInterstitialAd?.fullScreenContentCallback=object : FullScreenContentCallback(){
-                        override fun onAdDismissedFullScreenContent() {
-                            super.onAdDismissedFullScreenContent()
-                            // Dismiss the loading dialog when ad is dismissed
-                            val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                            if (dialog is AlertDialog) {
-                                dialog.dismiss()
+            if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+                // User is subscribed, hide ads
+                finish()
+                //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+            } else {
+                // User is not subscribed, show ads
+                AlertDialog.Builder(this)
+                    .setMessage("Loading...")
+                    .setCancelable(false)
+                    .create()
+                    .show()
+                val adRequest = AdRequest.Builder().build()
+
+                InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                        Log.d(ContentValues.TAG, "Ad was loaded.")
+                        mInterstitialAd = interstitialAd
+                        mInterstitialAd?.fullScreenContentCallback=object :FullScreenContentCallback(){
+                            override fun onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent()
+                                // Dismiss the loading dialog when ad is dismissed
+                                val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                                if (dialog is AlertDialog) {
+                                    dialog.dismiss()
+                                }
                             }
                         }
+                        // Show the ad
+                        mInterstitialAd?.show(this@HistoryActivity)
+
+                        // Finish the activity after showing the ad
+                        finish()
                     }
-                    // Show the ad
-                    mInterstitialAd?.show(this@HistoryActivity)
 
-                    // Finish the activity after showing the ad
-                    finish()
-                }
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                        if (dialog is AlertDialog) {
+                            dialog.dismiss()
+                        }
+                        Log.e(ContentValues.TAG, "Ad failed to load: $adError")
 
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                    if (dialog is AlertDialog) {
-                        dialog.dismiss()
+                        // If ad failed to load, simply finish the activity
+                        finish()
                     }
-                    Log.e(ContentValues.TAG, "Ad failed to load: $adError")
+                })
+            }
 
-                    // If ad failed to load, simply finish the activity
-                    finish()
-                }
-            })
         }
 
         delete.setOnClickListener {

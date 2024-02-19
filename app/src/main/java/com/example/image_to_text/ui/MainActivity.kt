@@ -10,11 +10,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
@@ -26,6 +28,7 @@ import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.history.HistoryActivity
 import com.example.image_to_text.ui.inapp.InAppActivity
 import com.google.android.gms.ads.AdRequest
@@ -79,6 +82,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var copy: ImageView
     private lateinit var share: ImageView
+    private lateinit var subscriptionManager: SubscriptionManager
+    private lateinit var adView: AdView
 
 
 
@@ -86,6 +91,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         setContentView(com.example.image_to_text.R.layout.activity_main)
+        adView=findViewById(R.id.adView)
+        subscriptionManager = SubscriptionManager(this)
+
+        // Check subscription status
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            // User is subscribed, hide ads
+            hideAds()
+            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+        } else {
+            // User is not subscribed, show ads
+            showAds()
+        }
         loadAvailableLanguages()
         destinationLanguageChooseBtn = findViewById<MaterialButton>(R.id.destinationLanguageChooseBtn)
         destinationLanguageChooseBtn.setOnClickListener {
@@ -185,9 +206,6 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        val adView: AdView = findViewById(R.id.adView)
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
 
 
         imageViewCamera = findViewById<MaterialButton>(R.id.imageViewCamera)
@@ -204,40 +222,63 @@ class MainActivity : AppCompatActivity() {
             ad(count)
         }
     }
-    private fun ad(count: Int) {
-        val loadingDialog = AlertDialog.Builder(this)
-            .setMessage("Loading...")
-            .setCancelable(false)
-            .create()
-        loadingDialog.show()
+    private fun hideAds() {
+        adView.visibility = View.GONE
+    }
 
+    private fun showAds() {
+        adView.visibility = View.VISIBLE
         val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+    }
+    private fun ad(count: Int) {
 
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                Log.d(ContentValues.TAG, "Ad was loaded.")
-                mInterstitialAd = interstitialAd
-                mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                    override fun onAdDismissedFullScreenContent() {
-                        super.onAdDismissedFullScreenContent()
-                        // Dismiss the loading dialog when ad is dismissed
-                        loadingDialog.dismiss()
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            if (count == 1) {
+                openCamera()
+            } else if (count == 2) {
+                openGallery()
+            }
+        } else {
+            val loadingDialog = AlertDialog.Builder(this)
+                .setMessage("Loading...")
+                .setCancelable(false)
+                .create()
+            loadingDialog.show()
+
+            val adRequest = AdRequest.Builder().build()
+
+            InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(ContentValues.TAG, "Ad was loaded.")
+                    mInterstitialAd = interstitialAd
+                    mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                        override fun onAdDismissedFullScreenContent() {
+                            super.onAdDismissedFullScreenContent()
+                            // Dismiss the loading dialog when ad is dismissed
+                            loadingDialog.dismiss()
+                        }
                     }
+                    if (count == 1) {
+                        openCamera()
+                    } else if (count == 2) {
+                        openGallery()
+                    }
+                    // Show the ad
+                    mInterstitialAd?.show(this@MainActivity)
                 }
-                if (count == 1) {
-                    openCamera()
-                } else if (count == 2) {
-                    openGallery()
-                }
-                // Show the ad
-                mInterstitialAd?.show(this@MainActivity)
-            }
 
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                loadingDialog.dismiss()
-                Log.e(ContentValues.TAG, "Ad failed to load: $adError")
-            }
-        })
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    loadingDialog.dismiss()
+                    Log.e(ContentValues.TAG, "Ad failed to load: $adError")
+                }
+            })
+        }
+
     }
     private fun copyTextToClipboard(text: String) {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager

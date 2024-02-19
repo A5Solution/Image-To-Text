@@ -22,4 +22,16 @@ class SubscriptionManager(context: Context) {
     fun setLifetimeSubscriptionActive(active: Boolean) {
         prefs.edit().putBoolean(KEY_LIFETIME_SUBSCRIPTION, active).apply()
     }
+
+    fun isMonthlySubscriptionActive(): Boolean {
+        return prefs.getBoolean(KEY_MONTHLY_SUBSCRIPTION, false)
+    }
+
+    fun isYearlySubscriptionActive(): Boolean {
+        return prefs.getBoolean(KEY_YEARLY_SUBSCRIPTION, false)
+    }
+
+    fun isLifetimeSubscriptionActive(): Boolean {
+        return prefs.getBoolean(KEY_LIFETIME_SUBSCRIPTION, false)
+    }
 }

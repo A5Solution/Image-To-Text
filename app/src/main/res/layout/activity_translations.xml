@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="20dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
@@ -167,6 +167,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:id="@+id/trLayout"
                     android:padding="16dp">
                     <!-- First child LinearLayout -->
 
@@ -219,16 +220,31 @@
 
 
     </LinearLayout>
+
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/translateBtn"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        app:cornerRadius="20dp"
+        android:layout_above="@+id/linearLayout5"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        app:icon="@drawable/translate"
-        android:id="@+id/translateBtn"
+        android:layout_marginBottom="45dp"
         android:text="Translate"
-        android:layout_alignParentBottom="true"/>
+        app:cornerRadius="20dp"
+        app:icon="@drawable/translate" />
 
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:adSize="BANNER"
+            app:adUnitId="@string/banner_ad_unit_id" />
+    </LinearLayout>
 </RelativeLayout>

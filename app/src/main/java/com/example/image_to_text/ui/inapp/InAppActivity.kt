@@ -19,11 +19,15 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var monthlySkuDetails: SkuDetails? = null
     private var yearlySkuDetails: SkuDetails? = null
     private var lifetimeSkuDetails: SkuDetails? = null
+    private var close: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_in_app)
-
+        close=findViewById(R.id.close)
+        close?.setOnClickListener(){
+            finish()
+        }
         billingClient = BillingClient.newBuilder(this)
             .setListener(this)
             .enablePendingPurchases()
@@ -103,31 +107,18 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
         when (sku) {
             "monthly_subscription_sku" -> {
                 subscriptionManager.setMonthlySubscriptionActive(true)
-                removeAdsForMonth()
+
             }
             "yearly_subscription_sku" -> {
                 subscriptionManager.setYearlySubscriptionActive(true)
-                removeAdsForYear()
+
             }
             "lifetime_subscription_sku" -> {
                 subscriptionManager.setLifetimeSubscriptionActive(true)
-                removeAdsPermanently()
+
             }
             else -> showToast("Unknown SKU: $sku")
         }
-    }
-
-    private fun removeAdsForMonth() {
-        // Implement logic to remove ads for a month
-
-    }
-
-    private fun removeAdsForYear() {
-        // Implement logic to remove ads for a year
-    }
-
-    private fun removeAdsPermanently() {
-        // Implement logic to remove ads permanently
     }
 
     private fun showToast(message: String) {

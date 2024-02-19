@@ -15,6 +15,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -24,6 +25,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.database.DatabaseHelper
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
@@ -51,18 +53,31 @@ class ViewTranslationActivity : AppCompatActivity() {
     private  val CHANNEL_NAME = "Your Channel Name"
     private val NOTIFICATION_ID = 1001
     private var mInterstitialAd: InterstitialAd? = null
+    private lateinit var subscriptionManager: SubscriptionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_translation)
+        subscriptionManager = SubscriptionManager(this)
 
         val filePath = intent.getStringExtra("imageFilePath")
         val yourString = intent.getStringExtra("yourString")
         val bitmap = BitmapFactory.decodeFile(filePath)
         val adView: AdView = findViewById(R.id.adView)
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            // User is subscribed, hide ads
+            adView?.visibility= View.GONE
+            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+        } else {
+            // User is not subscribed, show ads
+            val adRequest = AdRequest.Builder().build()
+            adView.loadAd(adRequest)
+        }
+
         back = findViewById(R.id.back)
         imageView = findViewById(R.id.imageView)
         copy = findViewById(R.id.copy)
@@ -74,45 +89,57 @@ class ViewTranslationActivity : AppCompatActivity() {
 
 
         back.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setMessage("Loading...")
-                .setCancelable(false)
-                .create()
-                .show()
-            val adRequest = AdRequest.Builder().build()
+            val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+            val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+            val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
-            InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d(TAG, "Ad was loaded.")
-                    mInterstitialAd = interstitialAd
-                    mInterstitialAd?.fullScreenContentCallback=object :FullScreenContentCallback(){
-                        override fun onAdDismissedFullScreenContent() {
-                            super.onAdDismissedFullScreenContent()
-                            // Dismiss the loading dialog when ad is dismissed
-                            val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                            if (dialog is AlertDialog) {
-                                dialog.dismiss()
+            if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+                // User is subscribed, hide ads
+                finish()
+                //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+            } else {
+                // User is not subscribed, show ads
+                AlertDialog.Builder(this)
+                    .setMessage("Loading...")
+                    .setCancelable(false)
+                    .create()
+                    .show()
+                val adRequest = AdRequest.Builder().build()
+
+                InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                        Log.d(TAG, "Ad was loaded.")
+                        mInterstitialAd = interstitialAd
+                        mInterstitialAd?.fullScreenContentCallback=object :FullScreenContentCallback(){
+                            override fun onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent()
+                                // Dismiss the loading dialog when ad is dismissed
+                                val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                                if (dialog is AlertDialog) {
+                                    dialog.dismiss()
+                                }
                             }
                         }
+                        // Show the ad
+                        mInterstitialAd?.show(this@ViewTranslationActivity)
+
+                        // Finish the activity after showing the ad
+                        finish()
                     }
-                    // Show the ad
-                    mInterstitialAd?.show(this@ViewTranslationActivity)
 
-                    // Finish the activity after showing the ad
-                    finish()
-                }
+                    override fun onAdFailedToLoad(adError: LoadAdError) {
+                        val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                        if (dialog is AlertDialog) {
+                            dialog.dismiss()
+                        }
+                        Log.e(TAG, "Ad failed to load: $adError")
 
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                    if (dialog is AlertDialog) {
-                        dialog.dismiss()
+                        // If ad failed to load, simply finish the activity
+                        finish()
                     }
-                    Log.e(TAG, "Ad failed to load: $adError")
+                })
+            }
 
-                    // If ad failed to load, simply finish the activity
-                    finish()
-                }
-            })
         }
 
         copy.setOnClickListener {
