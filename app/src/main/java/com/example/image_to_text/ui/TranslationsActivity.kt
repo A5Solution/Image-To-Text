@@ -4,8 +4,10 @@ package com.example.image_to_text.ui
 import android.app.ProgressDialog
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,9 +16,15 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.image_to_text.R
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
@@ -46,11 +54,14 @@ class TranslationsActivity : AppCompatActivity() {
     private lateinit var progressDialog: ProgressDialog
 
     private val TAG = "MAIN_TAG"
+    private var mInterstitialAd: InterstitialAd? = null
 
     private var sourceLanguageCode = "en"
     private var sourceLanguageTitle = "English"
     private var destinationLanguageCode = "ur"
     private var destinationLanguageTitle = "Urdu"
+    private var yourString = ""
+    private var yourString1 = ""
     private lateinit var copy: ImageView
     private lateinit var share: ImageView
     private lateinit var copy1: ImageView
@@ -71,27 +82,70 @@ class TranslationsActivity : AppCompatActivity() {
         progressDialog.setTitle("Please Wait")
         progressDialog.setCanceledOnTouchOutside(false)
 
-        back.setOnClickListener(){
-            finish()
+        back.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setMessage("Loading...")
+                .setCancelable(false)
+                .create()
+                .show()
+            val adRequest = AdRequest.Builder().build()
+
+            InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(ContentValues.TAG, "Ad was loaded.")
+                    mInterstitialAd = interstitialAd
+                    mInterstitialAd?.fullScreenContentCallback=object : FullScreenContentCallback(){
+                        override fun onAdDismissedFullScreenContent() {
+                            super.onAdDismissedFullScreenContent()
+                            // Dismiss the loading dialog when ad is dismissed
+                            val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                            if (dialog is AlertDialog) {
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+                    // Show the ad
+                    mInterstitialAd?.show(this@TranslationsActivity)
+
+                    // Finish the activity after showing the ad
+                    finish()
+                }
+
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                    if (dialog is AlertDialog) {
+                        dialog.dismiss()
+                    }
+                    Log.e(ContentValues.TAG, "Ad failed to load: $adError")
+
+                    // If ad failed to load, simply finish the activity
+                    finish()
+                }
+            })
         }
         loadAvailableLanguages()
-        val yourString=sourceLanguage.text.toString()
-        val yourString1=destinationLanguageTv.text.toString()
+
+
         copy = findViewById(R.id.copy)
         share = findViewById(R.id.share)
         copy.setOnClickListener {
+            yourString=sourceLanguage.text.toString()
             yourString?.let { it1 -> copyTextToClipboard(it1) }
         }
         share.setOnClickListener {
+            yourString=sourceLanguage.text.toString()
             yourString?.let { it1 -> shareImageAndText(it1) }
         }
 
         copy1 = findViewById(R.id.copy1)
         share1 = findViewById(R.id.share1)
-        copy.setOnClickListener {
+        copy1.setOnClickListener {
+
+            yourString1=destinationLanguageTv.text.toString()
             yourString1?.let { it1 -> copyTextToClipboard(it1) }
         }
-        share.setOnClickListener {
+        share1.setOnClickListener {
+            yourString1=destinationLanguageTv.text.toString()
             yourString1?.let { it1 -> shareImageAndText(it1) }
         }
         sourceLanguageChooseBtn.setOnClickListener {

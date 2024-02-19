@@ -4,16 +4,15 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.widget.EditText
@@ -21,21 +20,20 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.history.HistoryActivity
-import com.example.image_to_text.ui.nativead.NativeAdActivity
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdLoader
+import com.example.image_to_text.ui.inapp.InAppActivity
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.nativead.NativeAd
-import com.google.android.gms.ads.nativead.NativeAdOptions
-import com.google.android.gms.ads.nativead.NativeAdView
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
@@ -70,8 +68,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var destinationLanguageChooseBtn: MaterialButton
     private var destinationLanguageCode = "ur"
     private var destinationLanguageTitle = "Urdu"
+    private var mInterstitialAd: InterstitialAd? = null
 
     private var sourceLanguageCode = "en"
+    public var count = 0
     private var sourceLanguageTitle = "English"
     private lateinit var translateBtn: MaterialButton
     private lateinit var sourceLanguage: EditText
@@ -86,7 +86,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         setContentView(com.example.image_to_text.R.layout.activity_main)
-
         loadAvailableLanguages()
         destinationLanguageChooseBtn = findViewById<MaterialButton>(R.id.destinationLanguageChooseBtn)
         destinationLanguageChooseBtn.setOnClickListener {
@@ -101,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, HistoryActivity::class.java)
             startActivity(intent)
         }
+        sourceLanguage = findViewById(R.id.sourceLanguage)
         val yourString=sourceLanguage.text.toString()
         copy = findViewById(R.id.copy)
         share = findViewById(R.id.share)
@@ -110,8 +110,6 @@ class MainActivity : AppCompatActivity() {
         share.setOnClickListener {
             yourString?.let { it1 -> shareImageAndText(it1) }
         }
-        sourceLanguage = findViewById(R.id.sourceLanguage)
-
         menu = findViewById<ImageView>(R.id.menu)
         drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
 
@@ -133,8 +131,8 @@ class MainActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menu->
             when (menu.itemId){
                 R.id.menu_remove_ads -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
+                    val intent = Intent(this, InAppActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 R.id.text_to_text -> {
@@ -197,16 +195,49 @@ class MainActivity : AppCompatActivity() {
         imageViewPhoto = findViewById<ImageView>(R.id.imageViewPhoto)
 
         imageViewCamera?.setOnClickListener {
-            openCamera()
-            val intent = Intent(this, NativeAdActivity::class.java)
-            startActivity(intent)
-
+            count=1
+            ad(count)
         }
         imageViewGallery?.setOnClickListener {
-            openGallery()
-            val intent = Intent(this, NativeAdActivity::class.java)
-            startActivity(intent)
+
+            count=2
+            ad(count)
         }
+    }
+    private fun ad(count: Int) {
+        val loadingDialog = AlertDialog.Builder(this)
+            .setMessage("Loading...")
+            .setCancelable(false)
+            .create()
+        loadingDialog.show()
+
+        val adRequest = AdRequest.Builder().build()
+
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                Log.d(ContentValues.TAG, "Ad was loaded.")
+                mInterstitialAd = interstitialAd
+                mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent()
+                        // Dismiss the loading dialog when ad is dismissed
+                        loadingDialog.dismiss()
+                    }
+                }
+                if (count == 1) {
+                    openCamera()
+                } else if (count == 2) {
+                    openGallery()
+                }
+                // Show the ad
+                mInterstitialAd?.show(this@MainActivity)
+            }
+
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                loadingDialog.dismiss()
+                Log.e(ContentValues.TAG, "Ad failed to load: $adError")
+            }
+        })
     }
     private fun copyTextToClipboard(text: String) {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
@@ -298,6 +329,10 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun openCamera() {
+        val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+        if (dialog is AlertDialog) {
+            dialog.dismiss()
+        }
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (cameraIntent.resolveActivity(packageManager) != null) {
 
@@ -308,6 +343,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openGallery() {
+        val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+        if (dialog is AlertDialog) {
+            dialog.dismiss()
+        }
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(galleryIntent, REQUEST_GALLERY)
     }

@@ -3,5 +3,6 @@
     <string name="navigation_drawer_open">Open Drawer</string>
     <string name="navigation_drawer_close">Close Drawer</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="subscription">When subscribe to premium content, your subscription will renew automatically. You\'ll be charged at the start of every billing cycle until you cancel subscription. You can cancel your subscription from Google Play Store.</string>
 
 </resources>

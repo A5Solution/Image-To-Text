@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,17 +14,25 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.database.DatabaseHelper
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -41,6 +50,8 @@ class ViewTranslationActivity : AppCompatActivity() {
     private var CHANNEL_ID = "your_channel_id"
     private  val CHANNEL_NAME = "Your Channel Name"
     private val NOTIFICATION_ID = 1001
+    private var mInterstitialAd: InterstitialAd? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_translation)
@@ -60,9 +71,50 @@ class ViewTranslationActivity : AppCompatActivity() {
         imageView = findViewById(R.id.imageView)
         imageView = findViewById(R.id.imageView)
         sourceLanguage = findViewById(R.id.sourceLanguage)
-        back.setOnClickListener(){
-            finish()
+
+
+        back.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setMessage("Loading...")
+                .setCancelable(false)
+                .create()
+                .show()
+            val adRequest = AdRequest.Builder().build()
+
+            InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(TAG, "Ad was loaded.")
+                    mInterstitialAd = interstitialAd
+                    mInterstitialAd?.fullScreenContentCallback=object :FullScreenContentCallback(){
+                        override fun onAdDismissedFullScreenContent() {
+                            super.onAdDismissedFullScreenContent()
+                            // Dismiss the loading dialog when ad is dismissed
+                            val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                            if (dialog is AlertDialog) {
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+                    // Show the ad
+                    mInterstitialAd?.show(this@ViewTranslationActivity)
+
+                    // Finish the activity after showing the ad
+                    finish()
+                }
+
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                    if (dialog is AlertDialog) {
+                        dialog.dismiss()
+                    }
+                    Log.e(TAG, "Ad failed to load: $adError")
+
+                    // If ad failed to load, simply finish the activity
+                    finish()
+                }
+            })
         }
+
         copy.setOnClickListener {
             yourString?.let { it1 -> copyTextToClipboard(it1) }
         }

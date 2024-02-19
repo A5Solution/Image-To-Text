@@ -1,15 +1,36 @@
 package com.example.image_to_text.ui.history
 
+import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.RatingBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.database.DatabaseHelper
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.VideoOptions
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAd.OnNativeAdLoadedListener
+import com.google.android.gms.ads.nativead.NativeAdOptions
+import com.google.android.gms.ads.nativead.NativeAdView
 import java.io.ByteArrayInputStream
 
 class HistoryActivity : AppCompatActivity() {
@@ -17,17 +38,76 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var back: ImageView
     private lateinit var delete: ImageView
     private lateinit var databaseHelper: DatabaseHelper
+    private var mInterstitialAd: InterstitialAd? = null
+    private var mNativeAd: NativeAd? = null
+    private var timerTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
+        timerTextView = findViewById(R.id.timer)
 
+        object : CountDownTimer(5000, 1000) {
+            // 5000 milliseconds (5 seconds), with 1000 milliseconds (1 second) interval
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft =
+                    (millisUntilFinished / 1000).toInt() + 1 // Add 1 to make the range 5 to 1
+                timerTextView?.setText(secondsLeft.toString())
+            }
+
+            override fun onFinish() {
+                timerTextView?.setText("X")
+                timerTextView?.setOnClickListener(View.OnClickListener {
+                    finish()
+                })
+                // Timer finished, do whatever you need here
+            }
+        }.start()
+        loadNativeAd()
         recyclerView = findViewById(R.id.recyclerView)
         back = findViewById(R.id.back)
         delete = findViewById(R.id.delete)
 
         back.setOnClickListener {
-            finish()
+            AlertDialog.Builder(this)
+                .setMessage("Loading...")
+                .setCancelable(false)
+                .create()
+                .show()
+            val adRequest = AdRequest.Builder().build()
+
+            InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(ContentValues.TAG, "Ad was loaded.")
+                    mInterstitialAd = interstitialAd
+                    mInterstitialAd?.fullScreenContentCallback=object : FullScreenContentCallback(){
+                        override fun onAdDismissedFullScreenContent() {
+                            super.onAdDismissedFullScreenContent()
+                            // Dismiss the loading dialog when ad is dismissed
+                            val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                            if (dialog is AlertDialog) {
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+                    // Show the ad
+                    mInterstitialAd?.show(this@HistoryActivity)
+
+                    // Finish the activity after showing the ad
+                    finish()
+                }
+
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
+                    if (dialog is AlertDialog) {
+                        dialog.dismiss()
+                    }
+                    Log.e(ContentValues.TAG, "Ad failed to load: $adError")
+
+                    // If ad failed to load, simply finish the activity
+                    finish()
+                }
+            })
         }
 
         delete.setOnClickListener {
@@ -60,6 +140,114 @@ class HistoryActivity : AppCompatActivity() {
             }
         }
         return items
+    }
+    private fun loadNativeAd() {
+        val adBuilder =
+            AdLoader.Builder(applicationContext, "ca-app-pub-3940256099942544/2247696110")
+        adBuilder.forNativeAd(OnNativeAdLoadedListener { nativeAd ->
+            if (isDestroyed || isFinishing || isChangingConfigurations) {
+                nativeAd.destroy()
+                return@OnNativeAdLoadedListener
+            }
+            if (mNativeAd != null) {
+                mNativeAd?.destroy()
+            }
+            mNativeAd = nativeAd
+            val frameLayout = findViewById<FrameLayout>(R.id.frameNative)
+            val adView = layoutInflater.inflate(R.layout.native_ad_layout, null) as NativeAdView
+            populateNativeAdView(nativeAd, adView)
+            frameLayout.removeAllViews()
+            frameLayout.addView(adView)
+        })
+        val videoOptions = VideoOptions.Builder().setStartMuted(true).build()
+        val nativeAdOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()
+        val adLoader = adBuilder.withAdListener(object : AdListener() {
+            override fun onAdClicked() {
+                super.onAdClicked()
+            }
+
+            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                super.onAdFailedToLoad(loadAdError)
+                Toast.makeText(this@HistoryActivity, "Error Loading Ad", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAdLoaded() {
+                super.onAdLoaded()
+                //Toast.makeText(NativeAdActivity.this, "Loaded", Toast.LENGTH_SHORT).show();
+            }
+        }).build()
+        adLoader.loadAd(AdRequest.Builder().build())
+    }
+
+    private fun populateNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
+        // Set the media view.
+        adView.mediaView = adView.findViewById(R.id.ad_media)
+
+        // Set other ad assets.
+        adView.headlineView = adView.findViewById(R.id.ad_headline)
+        adView.bodyView = adView.findViewById(R.id.ad_body)
+        adView.callToActionView = adView.findViewById(R.id.ad_call_to_action)
+        adView.iconView = adView.findViewById(R.id.ad_app_icon)
+        adView.priceView = adView.findViewById(R.id.ad_price)
+        adView.starRatingView = adView.findViewById(R.id.ad_stars)
+        adView.storeView = adView.findViewById(R.id.ad_store)
+        adView.advertiserView = adView.findViewById(R.id.ad_advertiser)
+
+        // The headline and mediaContent are guaranteed to be in every UnifiedNativeAd.
+        (adView.headlineView as TextView?)!!.text = nativeAd.headline
+        adView.mediaView!!.mediaContent = nativeAd.mediaContent
+
+        // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
+        // check before trying to display them.
+        if (nativeAd.body == null) {
+            adView.bodyView!!.visibility = View.INVISIBLE
+        } else {
+            adView.bodyView!!.visibility = View.VISIBLE
+            (adView.bodyView as TextView?)!!.text = nativeAd.body
+        }
+        if (nativeAd.callToAction == null) {
+            adView.callToActionView!!.visibility = View.INVISIBLE
+        } else {
+            adView.callToActionView!!.visibility = View.VISIBLE
+            (adView.callToActionView as Button?)!!.text = nativeAd.callToAction
+        }
+        if (nativeAd.icon == null) {
+            adView.iconView!!.visibility = View.GONE
+        } else {
+            (adView.iconView as ImageView?)!!.setImageDrawable(
+                nativeAd.icon!!.drawable
+            )
+            adView.iconView!!.visibility = View.VISIBLE
+        }
+        if (nativeAd.price == null) {
+            adView.priceView!!.visibility = View.INVISIBLE
+        } else {
+            adView.priceView!!.visibility = View.VISIBLE
+            (adView.priceView as TextView?)!!.text = nativeAd.price
+        }
+        if (nativeAd.store == null) {
+            adView.storeView!!.visibility = View.INVISIBLE
+        } else {
+            adView.storeView!!.visibility = View.VISIBLE
+            (adView.storeView as TextView?)!!.text = nativeAd.store
+        }
+        if (nativeAd.starRating == null) {
+            adView.starRatingView!!.visibility = View.INVISIBLE
+        } else {
+            (adView.starRatingView as RatingBar?)
+                ?.setRating(nativeAd.starRating!!.toFloat())
+            adView.starRatingView!!.visibility = View.VISIBLE
+        }
+        if (nativeAd.advertiser == null) {
+            adView.advertiserView!!.visibility = View.INVISIBLE
+        } else {
+            (adView.advertiserView as TextView?)!!.text = nativeAd.advertiser
+            adView.advertiserView!!.visibility = View.VISIBLE
+        }
+
+        // This method tells the Google Mobile Ads SDK that you have finished populating your
+        // native ad view with this native ad.
+        adView.setNativeAd(nativeAd)
     }
 
     data class ImageTextItem(val bitmap: Bitmap, val text: String)
