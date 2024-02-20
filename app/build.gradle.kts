@@ -30,6 +30,7 @@ android {
             )
             signingConfig = signingConfigs.getByName("debug")
         }
+
     }
 
     compileOptions {
@@ -77,6 +78,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-vision-common:19.1.3")
     implementation("com.google.firebase:firebase-ml-vision:24.1.0")
     implementation("com.google.android.gms:play-services-ads:22.6.0")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.4.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -101,6 +103,7 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.google.mlkit:translate:17.0.2")
     implementation ("com.android.billingclient:billing:6.1.0")
+    implementation ("com.google.firebase:firebase-messaging-directboot:20.2.0")
 
 
 

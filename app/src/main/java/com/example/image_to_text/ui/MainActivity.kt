@@ -284,7 +284,7 @@ class MainActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
-        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     private fun shareImageAndText(text: String) {
@@ -379,7 +379,7 @@ class MainActivity : AppCompatActivity() {
 
             startActivityForResult(cameraIntent, REQUEST_CAMERA)
         } else {
-            Toast.makeText(this, "Camera not available", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "Camera not available", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -436,7 +436,7 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 // Task failed with an exception
                 Log.e("TAG", "Text recognition failed: $e")
-                Toast.makeText(this, "Text recognition failed", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Text recognition failed", Toast.LENGTH_SHORT).show()
             }
     }
 

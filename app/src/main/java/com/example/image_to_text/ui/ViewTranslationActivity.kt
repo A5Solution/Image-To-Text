@@ -162,10 +162,10 @@ class ViewTranslationActivity : AppCompatActivity() {
         val imageData = convertBitmapToByteArray(bitmap)
         val insertedRowId = databaseHelper.insertData(imageData, text)
         if (insertedRowId != -1L) {
-            Toast.makeText(context, "Image and text saved to SQLite database!", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(context, "Image and text saved to SQLite database!", Toast.LENGTH_SHORT).show()
             showNotification(context, "Image and text saved", "Image and text saved to SQLite database!")
         } else {
-            Toast.makeText(context, "Failed to save image and text to SQLite database", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(context, "Failed to save image and text to SQLite database", Toast.LENGTH_SHORT).show()
         }
     }
     private fun convertBitmapToByteArray(bitmap: Bitmap): ByteArray {
@@ -177,7 +177,7 @@ class ViewTranslationActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
-        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
     }
     private fun showNotification(context: Context, title: String, message: String) {
         val notificationManager = NotificationManagerCompat.from(this)

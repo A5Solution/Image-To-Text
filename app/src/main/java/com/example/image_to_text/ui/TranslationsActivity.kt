@@ -196,7 +196,7 @@ class TranslationsActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
-        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     private fun shareImageAndText(text: String) {

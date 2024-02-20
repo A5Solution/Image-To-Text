@@ -117,7 +117,7 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 subscriptionManager.setLifetimeSubscriptionActive(true)
 
             }
-            else -> showToast("Unknown SKU: $sku")
+            //else -> showToast("Unknown SKU: $sku")
         }
     }
 
