@@ -57,7 +57,7 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
     }
 
     private fun loadSkuDetails() {
-        val skuList = listOf("monthly_subscription_sku", "yearly_subscription_sku", "lifetime_subscription_sku")
+        val skuList = listOf("img_sparx_one_month_subscription", "img_sparx_yearly_subcription", "img_sparx_lifetime_purchase")
         val params = SkuDetailsParams.newBuilder()
             .setType(BillingClient.SkuType.SUBS)
             .setSkusList(skuList)
@@ -67,9 +67,9 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
                 for (skuDetails in skuDetailsList) {
                     when (skuDetails.sku) {
-                        "monthly_subscription_sku" -> monthlySkuDetails = skuDetails
-                        "yearly_subscription_sku" -> yearlySkuDetails = skuDetails
-                        "lifetime_subscription_sku" -> lifetimeSkuDetails = skuDetails
+                        "img_sparx_one_month_subscription" -> monthlySkuDetails = skuDetails
+                        "img_sparx_yearly_subcription" -> yearlySkuDetails = skuDetails
+                        "img_sparx_lifetime_purchase" -> lifetimeSkuDetails = skuDetails
                     }
                 }
             } else {
@@ -105,15 +105,15 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private fun handlePurchase(purchase: Purchase) {
         val sku = purchase.skus.firstOrNull()
         when (sku) {
-            "monthly_subscription_sku" -> {
+            "img_sparx_one_month_subscription" -> {
                 subscriptionManager.setMonthlySubscriptionActive(true)
 
             }
-            "yearly_subscription_sku" -> {
+            "img_sparx_yearly_subcription" -> {
                 subscriptionManager.setYearlySubscriptionActive(true)
 
             }
-            "lifetime_subscription_sku" -> {
+            "img_sparx_lifetime_purchase" -> {
                 subscriptionManager.setLifetimeSubscriptionActive(true)
 
             }

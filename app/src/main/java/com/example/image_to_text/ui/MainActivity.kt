@@ -164,11 +164,22 @@ class MainActivity : AppCompatActivity() {
                 R.id.menu_app_language -> {
                     // Handle click on the item
                     // For example, you can perform some action here
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Coming Soon...")
+                    builder.setMessage("This feature is currently under development. Stay tuned!")
+                    builder.setPositiveButton("OK") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    val dialog = builder.create()
+                    dialog.show()
                     true
                 }
                 R.id.menu_share_app -> {
                     // Handle click on the item
                     // For example, you can perform some action here
+                    val websiteUri = Uri.parse("https://play.google.com/store/apps/details?id=com.image.to.text.ocrscanner.textconverter.extract.text.translateapp") // Replace "https://example.com" with your website URL
+                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                    startActivity(intent)
                     true
                 }
                 R.id.menu_privacy_policy -> {
@@ -315,58 +326,7 @@ class MainActivity : AppCompatActivity() {
         // Start the activity to share text
         startActivity(Intent.createChooser(shareIntent, "Share via"))
     }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.drawer_menu, menu) // Replace "your_menu_file_name" with the name of your menu XML file
 
-        // Set click listener for menu items
-        menu?.apply {
-            findItem(R.id.menu_remove_ads)?.setOnMenuItemClickListener {
-                // Handle Remove Ads click
-                true
-            }
-            findItem(R.id.menu_app_language)?.setOnMenuItemClickListener {
-                // Handle App Language click
-                true
-            }
-            findItem(R.id.menu_share_app)?.setOnMenuItemClickListener {
-                // Handle Share App click
-                val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
-                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                startActivity(intent)
-                true
-            }
-            findItem(R.id.menu_privacy_policy)?.setOnMenuItemClickListener {
-                // Handle Privacy Policy click
-                val websiteUri = Uri.parse("https://sites.google.com/view/image-to-text-ocr-extract/home") // Replace "https://example.com" with your website URL
-                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                startActivity(intent)
-                true
-            }
-            findItem(R.id.menu_rate_app)?.setOnMenuItemClickListener {
-                // Handle Rate App click
-                val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
-                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                startActivity(intent)
-                true
-            }
-            findItem(R.id.menu_more_app)?.setOnMenuItemClickListener {
-                // Handle More App click
-                val websiteUri = Uri.parse("https://play.google.com/store/apps/developer?id=Sparx+Developer") // Replace "https://example.com" with your website URL
-                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                startActivity(intent)
-                true
-            }
-            findItem(R.id.terms_and_condotions)?.setOnMenuItemClickListener {
-                // Handle Terms and Conditions click
-                val websiteUri = Uri.parse("https://sites.google.com/view/terms-and-conditions-image-to-/home") // Replace "https://example.com" with your website URL
-                val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                startActivity(intent)
-                true
-            }
-        }
-
-        return true
-    }
 
 
     private fun openCamera() {
