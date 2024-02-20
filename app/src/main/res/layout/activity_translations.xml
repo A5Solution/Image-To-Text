@@ -104,7 +104,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:id="@+id/destinationLanguageChooseBtn"
-                                android:text="URDU"
+                                android:text="Spanish"
                                 android:layout_marginStart="10dp"
                                 app:icon="@drawable/backarrow"
                                 app:iconGravity="textEnd"

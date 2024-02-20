@@ -60,8 +60,8 @@ class TranslationsActivity : AppCompatActivity() {
 
     private var sourceLanguageCode = "en"
     private var sourceLanguageTitle = "English"
-    private var destinationLanguageCode = "ur"
-    private var destinationLanguageTitle = "Urdu"
+    private var destinationLanguageCode = "es"
+    private var destinationLanguageTitle = "Spanish"
     private var yourString = ""
     private var yourString1 = ""
     private lateinit var copy: ImageView
@@ -119,7 +119,7 @@ class TranslationsActivity : AppCompatActivity() {
                     .show()
                 val adRequest = AdRequest.Builder().build()
 
-                InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest, object : InterstitialAdLoadCallback() {
+                InterstitialAd.load(this, "ca-app-pub-7055337155394452/3471919069", adRequest, object : InterstitialAdLoadCallback() {
                     override fun onAdLoaded(interstitialAd: InterstitialAd) {
                         Log.d(ContentValues.TAG, "Ad was loaded.")
                         mInterstitialAd = interstitialAd
