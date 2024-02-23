@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
+import com.example.image_to_text.ui.splashscreen.SplashActivity
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -44,6 +45,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import kotlin.collections.ArrayList
+
 class TranslationsActivity : AppCompatActivity() {
     private lateinit var sourceLanguage: EditText
     private lateinit var destinationLanguageTv: TextView
@@ -94,7 +96,7 @@ class TranslationsActivity : AppCompatActivity() {
 
         if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
             // User is subscribed, hide ads
-            adView?.visibility= View.GONE
+            adView?.visibility = View.GONE
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
@@ -111,46 +113,13 @@ class TranslationsActivity : AppCompatActivity() {
                 finish()
                 //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
             } else {
-                // User is not subscribed, show ads
-                AlertDialog.Builder(this)
-                    .setMessage("Loading...")
-                    .setCancelable(false)
-                    .create()
-                    .show()
-                val adRequest = AdRequest.Builder().build()
-
-                InterstitialAd.load(this, "ca-app-pub-7055337155394452/3471919069", adRequest, object : InterstitialAdLoadCallback() {
-                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                        Log.d(ContentValues.TAG, "Ad was loaded.")
-                        mInterstitialAd = interstitialAd
-                        mInterstitialAd?.fullScreenContentCallback=object :FullScreenContentCallback(){
-                            override fun onAdDismissedFullScreenContent() {
-                                super.onAdDismissedFullScreenContent()
-                                // Dismiss the loading dialog when ad is dismissed
-                                val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                                if (dialog is AlertDialog) {
-                                    dialog.dismiss()
-                                }
-                            }
-                        }
-                        // Show the ad
-                        mInterstitialAd?.show(this@TranslationsActivity)
-
-                        // Finish the activity after showing the ad
-                        finish()
-                    }
-
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                        if (dialog is AlertDialog) {
-                            dialog.dismiss()
-                        }
-                        Log.e(ContentValues.TAG, "Ad failed to load: $adError")
-
-                        // If ad failed to load, simply finish the activity
-                        finish()
-                    }
-                })
+                SplashActivity.admobInter.showInterAd(this) {
+                    SplashActivity.admobInter.loadInterAd(
+                        this,
+                        getString(R.string.inter_ad_unit_id)
+                    )
+                    finish()
+                }
             }
 
         }
@@ -161,11 +130,11 @@ class TranslationsActivity : AppCompatActivity() {
         copy = findViewById(R.id.copy)
         share = findViewById(R.id.share)
         copy.setOnClickListener {
-            yourString=sourceLanguage.text.toString()
+            yourString = sourceLanguage.text.toString()
             yourString?.let { it1 -> copyTextToClipboard(it1) }
         }
         share.setOnClickListener {
-            yourString=sourceLanguage.text.toString()
+            yourString = sourceLanguage.text.toString()
             yourString?.let { it1 -> shareImageAndText(it1) }
         }
 
@@ -173,11 +142,11 @@ class TranslationsActivity : AppCompatActivity() {
         share1 = findViewById(R.id.share1)
         copy1.setOnClickListener {
 
-            yourString1=destinationLanguageTv.text.toString()
+            yourString1 = destinationLanguageTv.text.toString()
             yourString1?.let { it1 -> copyTextToClipboard(it1) }
         }
         share1.setOnClickListener {
-            yourString1=destinationLanguageTv.text.toString()
+            yourString1 = destinationLanguageTv.text.toString()
             yourString1?.let { it1 -> shareImageAndText(it1) }
         }
         sourceLanguageChooseBtn.setOnClickListener {
@@ -192,6 +161,7 @@ class TranslationsActivity : AppCompatActivity() {
             validateData()
         }
     }
+
     private fun copyTextToClipboard(text: String) {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
@@ -214,7 +184,8 @@ class TranslationsActivity : AppCompatActivity() {
         }
 
         // Get the URI of the text file using FileProvider
-        val textUri = FileProvider.getUriForFile(this, "com.example.image_to_text.fileprovider", textFile)
+        val textUri =
+            FileProvider.getUriForFile(this, "com.example.image_to_text.fileprovider", textFile)
 
         // Create a share intent
         val shareIntent = Intent().apply {
@@ -227,6 +198,7 @@ class TranslationsActivity : AppCompatActivity() {
         // Start the activity to share text
         startActivity(Intent.createChooser(shareIntent, "Share via"))
     }
+
     private fun validateData() {
         val sourceLanguageText = sourceLanguage.text.toString().trim()
         if (sourceLanguageText.isEmpty()) {
@@ -257,12 +229,22 @@ class TranslationsActivity : AppCompatActivity() {
                 val translatedText = translator.translate(sourceLanguageText).await()
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    destinationLanguageTv.text = translatedText
+                    SplashActivity.admobInter.showInterAd(this@TranslationsActivity) {
+                        SplashActivity.admobInter.loadInterAd(
+                            this@TranslationsActivity,
+                            getString(R.string.inter_ad_unit_id)
+                        )
+                        destinationLanguageTv.text = translatedText
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    Toast.makeText(this@TranslationsActivity, "Failed! ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@TranslationsActivity,
+                        "Failed! ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

@@ -27,6 +27,7 @@ import androidx.core.content.FileProvider
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.database.DatabaseHelper
+import com.example.image_to_text.ui.splashscreen.SplashActivity
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
@@ -58,6 +59,10 @@ class ViewTranslationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_translation)
+
+        SplashActivity.admobInter.showInterAd(this){
+            SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
+        }
         subscriptionManager = SubscriptionManager(this)
 
         val filePath = intent.getStringExtra("imageFilePath")
@@ -89,57 +94,7 @@ class ViewTranslationActivity : AppCompatActivity() {
 
 
         back.setOnClickListener {
-            val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
-            val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
-            val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
-
-            if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
-                // User is subscribed, hide ads
                 finish()
-                //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
-            } else {
-                // User is not subscribed, show ads
-                AlertDialog.Builder(this)
-                    .setMessage("Loading...")
-                    .setCancelable(false)
-                    .create()
-                    .show()
-                val adRequest = AdRequest.Builder().build()
-
-                InterstitialAd.load(this, "ca-app-pub-7055337155394452/3471919069", adRequest, object : InterstitialAdLoadCallback() {
-                    override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                        Log.d(TAG, "Ad was loaded.")
-                        mInterstitialAd = interstitialAd
-                        mInterstitialAd?.fullScreenContentCallback=object :FullScreenContentCallback(){
-                            override fun onAdDismissedFullScreenContent() {
-                                super.onAdDismissedFullScreenContent()
-                                // Dismiss the loading dialog when ad is dismissed
-                                val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                                if (dialog is AlertDialog) {
-                                    dialog.dismiss()
-                                }
-                            }
-                        }
-                        // Show the ad
-                        mInterstitialAd?.show(this@ViewTranslationActivity)
-
-                        // Finish the activity after showing the ad
-                        finish()
-                    }
-
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
-                        if (dialog is AlertDialog) {
-                            dialog.dismiss()
-                        }
-                        Log.e(TAG, "Ad failed to load: $adError")
-
-                        // If ad failed to load, simply finish the activity
-                        finish()
-                    }
-                })
-            }
-
         }
 
         copy.setOnClickListener {

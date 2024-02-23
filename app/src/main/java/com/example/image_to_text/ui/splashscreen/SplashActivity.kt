@@ -18,20 +18,31 @@ import com.example.image_to_text.R
 import com.example.image_to_text.ui.MainActivity
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.android.billingclient.api.Purchase
+import com.example.image_to_text.ui.AdmobInter
+import com.google.android.gms.ads.MobileAds
 
 class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
-    private val SPLASH_SCREEN_DURATION = 3000 // 3 seconds
+    private val SPLASH_SCREEN_DURATION = 4000 // 3 seconds
     private var progressBar: ProgressBar? = null
     private var adView: AdView? = null
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var billingClient: BillingClient
+    companion object {
+        val admobInter = AdmobInter()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
+        val admobInterId = getString(R.string.inter_ad_unit_id)
+
         subscriptionManager = SubscriptionManager(this)
+
+        MobileAds.initialize(this) {
+            admobInter.loadInterAd(this, admobInterId)
+        }
 
         // Initialize BillingClient
         billingClient = BillingClient.newBuilder(this)
@@ -83,12 +94,10 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
         // Set ad listener
         adView?.adListener = object : AdListener() {
             override fun onAdLoaded() {
-                // Ad loaded successfully
                 startProgressBar()
             }
 
             override fun onAdFailedToLoad(p0: LoadAdError) {
-                // Ad failed to load
                 startProgressBar()
             }
         }

@@ -1,11 +1,13 @@
 package com.example.image_to_text.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
@@ -24,6 +26,8 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -31,6 +35,7 @@ import com.example.image_to_text.R
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.history.HistoryActivity
 import com.example.image_to_text.ui.inapp.InAppActivity
+import com.example.image_to_text.ui.splashscreen.SplashActivity
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -85,6 +90,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var adView: AdView
 
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 100
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +110,6 @@ class MainActivity : AppCompatActivity() {
         if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
             // User is subscribed, hide ads
             hideAds()
-            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
             showAds()
@@ -228,7 +235,6 @@ class MainActivity : AppCompatActivity() {
             ad(count)
         }
         imageViewGallery?.setOnClickListener {
-
             count=2
             ad(count)
         }
@@ -255,39 +261,30 @@ class MainActivity : AppCompatActivity() {
                 openGallery()
             }
         } else {
-            val loadingDialog = AlertDialog.Builder(this)
-                .setMessage("Loading...")
-                .setCancelable(false)
-                .create()
-            loadingDialog.show()
-
-            val adRequest = AdRequest.Builder().build()
-
-            InterstitialAd.load(this, "ca-app-pub-7055337155394452/3471919069", adRequest, object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                    Log.d(ContentValues.TAG, "Ad was loaded.")
-                    mInterstitialAd = interstitialAd
-                    mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-                        override fun onAdDismissedFullScreenContent() {
-                            super.onAdDismissedFullScreenContent()
-                            // Dismiss the loading dialog when ad is dismissed
-                            loadingDialog.dismiss()
-                        }
-                    }
-                    if (count == 1) {
+            SplashActivity.admobInter.showInterAd(this)
+            {
+                if (count == 1) {
+                    if (ContextCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        // Permission already granted, open camera
                         openCamera()
-                    } else if (count == 2) {
-                        openGallery()
+                    } else {
+                        // Request permission if not granted
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(Manifest.permission.CAMERA),
+                            PERMISSION_REQUEST_CODE
+                        )
                     }
-                    // Show the ad
-                    mInterstitialAd?.show(this@MainActivity)
+                    SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
+                } else if (count == 2) {
+                    openGallery()
+                    SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
                 }
-
-                override fun onAdFailedToLoad(adError: LoadAdError) {
-                    loadingDialog.dismiss()
-                    Log.e(ContentValues.TAG, "Ad failed to load: $adError")
-                }
-            })
+            }
         }
 
     }
@@ -296,6 +293,23 @@ class MainActivity : AppCompatActivity() {
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
         //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, open camera
+                openCamera()
+            } else {
+                // Permission denied, inform user
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun shareImageAndText(text: String) {
