@@ -1,10 +1,12 @@
 package com.example.image_to_text.ui.inapp
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.billingclient.api.*
@@ -20,10 +22,17 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var yearlySkuDetails: SkuDetails? = null
     private var lifetimeSkuDetails: SkuDetails? = null
     private var close: ImageView? = null
+    private var price_monthly: TextView? = null
+    private var price_yearly: TextView? = null
+    private var price_life_time: TextView? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_in_app)
+        price_monthly=findViewById(R.id.monthly_price)
+        price_yearly=findViewById(R.id.yearly_price)
+        price_life_time=findViewById(R.id.life_time_price)
         close=findViewById(R.id.close)
         close?.setOnClickListener(){
             finish()
@@ -39,6 +48,7 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     loadSkuDetails()
+                    loadLifeTime()
                 }
             }
 
@@ -54,22 +64,38 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
         monthlyImageView.setOnClickListener { initiatePurchase(monthlySkuDetails) }
         yearlyImageView.setOnClickListener { initiatePurchase(yearlySkuDetails) }
         lifetimeImageView.setOnClickListener { initiatePurchase(lifetimeSkuDetails) }
-    }
+        val imageView = findViewById<ImageView>(R.id.imageView2)
 
-    private fun loadSkuDetails() {
-        val skuList = listOf("img_sparx_one_month_subscription", "img_sparx_yearly_subcription", "img_sparx_lifetime_purchase")
+        // Define the initial position of the ImageView
+        imageView.translationX = 1000f // Adjust the value as per your requirement
+
+        // Create an ObjectAnimator to move the ImageView from right to its current position
+        val animator = ObjectAnimator.ofFloat(imageView, "translationX", 0f)
+        animator.duration = 1000 // Set the duration of the animation in milliseconds
+
+        // Start the animation
+        animator.start()
+    }
+    private fun loadLifeTime() {
+        val skuList = listOf(
+            "img_sparx_lifetime_purchase"
+        )
         val params = SkuDetailsParams.newBuilder()
-            .setType(BillingClient.SkuType.SUBS)
+            .setType(BillingClient.SkuType.INAPP) // Change to INAPP for in-app products
             .setSkusList(skuList)
             .build()
 
         billingClient.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
                 for (skuDetails in skuDetailsList) {
-                    when (skuDetails.sku) {
-                        "img_sparx_one_month_subscription" -> monthlySkuDetails = skuDetails
-                        "img_sparx_yearly_subcription" -> yearlySkuDetails = skuDetails
-                        "img_sparx_lifetime_purchase" -> lifetimeSkuDetails = skuDetails
+                    val sku = skuDetails.sku
+                    when (sku) {
+                        "img_sparx_lifetime_purchase" -> {
+                            lifetimeSkuDetails = skuDetails
+                            runOnUiThread {
+                                price_life_time?.text = skuDetails.price
+                            }
+                        }
                     }
                 }
             } else {
@@ -77,6 +103,42 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
             }
         }
     }
+
+    private fun loadSkuDetails() {
+        val skuList = listOf(
+            "img_sparx_one_month_subscription",
+            "img_sparx_yearly_subcription"
+        )
+        val params = SkuDetailsParams.newBuilder()
+            .setType(BillingClient.SkuType.SUBS) // Keep it SUBS for subscriptions
+            .setSkusList(skuList)
+            .build()
+
+        billingClient.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
+                for (skuDetails in skuDetailsList) {
+                    val sku = skuDetails.sku
+                    when (sku) {
+                        "img_sparx_one_month_subscription" -> {
+                            monthlySkuDetails = skuDetails
+                            runOnUiThread {
+                                price_monthly?.text = skuDetails.price
+                            }
+                        }
+                        "img_sparx_yearly_subcription" -> {
+                            yearlySkuDetails = skuDetails
+                            runOnUiThread {
+                                price_yearly?.text = skuDetails.price
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Handle error case when fetching SKU details fails
+            }
+        }
+    }
+
 
     private fun initiatePurchase(skuDetails: SkuDetails?) {
         skuDetails?.let { details ->
@@ -115,12 +177,23 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
             }
             "img_sparx_lifetime_purchase" -> {
                 subscriptionManager.setLifetimeSubscriptionActive(true)
-
+                loadLifeTime()
             }
             //else -> showToast("Unknown SKU: $sku")
         }
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("InAppActivity", "onDestroy() called")
+        billingClient.endConnection()
+    }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("InAppActivity", "onResume called")
+
+        // Yahan par additional code bhi add kar sakte hain, jaise MainActivity pe navigate karne ki check
+    }
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

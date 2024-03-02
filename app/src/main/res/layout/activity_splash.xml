@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white">
 
     <!-- Banner ad -->
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/banner_ad"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id" />
 
     <!-- Splash screen image -->
-    <ImageView
+    <!--<ImageView
         android:id="@+id/splash_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,33 +18,170 @@
         android:layout_marginTop="30dp"
         android:layout_centerVertical="true"
         android:layout_marginEnd="0dp"
-        android:src="@drawable/splashimage" />
+        android:src="@drawable/splashimage"
+        android:visibility="gone"/>-->
 
     <!-- Text: Image To Text -->
+
+    <!-- Progress bar -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="105dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        ads:layout_constraintBottom_toBottomOf="parent"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="4dp">
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/banner_ad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            ads:adSize="LARGE_BANNER"
+            ads:adUnitId="@string/banner_ad_unit_id" />
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        ads:layout_constraintBottom_toTopOf="@+id/progress_bar"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        ads:layout_constraintTop_toBottomOf="@+id/imagetotext">
+        <!--splash_image-->
+
+        <ImageView
+            android:id="@+id/border"
+            android:layout_width="279dp"
+            android:layout_height="344dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_scan_outer_border"
+            ads:layout_constraintBottom_toBottomOf="parent"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="parent"
+            ads:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/innerborder"
+            android:layout_width="279dp"
+            android:layout_height="344dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:padding="20dp"
+            android:src="@drawable/ic_inner_border"
+            ads:layout_constraintBottom_toBottomOf="parent"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="parent"
+            ads:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="178dp"
+            android:layout_height="235dp"
+            android:src="@drawable/question"
+            ads:layout_constraintBottom_toBottomOf="parent"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="@+id/border"
+            ads:layout_constraintTop_toTopOf="@+id/textView4" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="IMAGE TO TEXT"
+            android:textColor="@color/black"
+            android:textSize="23sp"
+            android:textStyle="bold"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="parent"
+            ads:layout_constraintTop_toTopOf="@+id/border" />
+
+        <ImageView
+            android:id="@+id/scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_scan"
+            ads:layout_constraintBottom_toTopOf="@+id/linescan"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/linescan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/linescan"
+            ads:layout_constraintBottom_toBottomOf="@+id/imageView3"
+            ads:layout_constraintEnd_toEndOf="parent"
+            ads:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     <TextView
         android:id="@+id/imagetotext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/splash_image"
         android:layout_centerInParent="true"
         android:layout_marginTop="24dp"
         android:text="Image To Text"
-        android:textColor="#343D6D"
+        android:textColor="#3D5663"
         android:textSize="30sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        ads:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Progress bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/imagetotext"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
         android:layout_alignParentBottom="true"
+        android:layout_marginTop="32dp"
         android:max="100"
-        android:progress="0" />
+        android:progress="0"
+        ads:layout_constraintBottom_toTopOf="@+id/cardView"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        ads:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
 
-</RelativeLayout>
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="-25dp"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/ic_copy"
+        ads:layout_constraintStart_toEndOf="@+id/constraintLayout"
+        ads:layout_constraintTop_toTopOf="@+id/constraintLayout" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="This action may contains Ads"
+        ads:layout_constraintEnd_toEndOf="parent"
+        ads:layout_constraintStart_toStartOf="parent"
+        ads:layout_constraintTop_toBottomOf="@+id/progress_bar" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="-20dp"
+        android:layout_marginBottom="92dp"
+        android:src="@drawable/ic_share"
+        ads:layout_constraintBottom_toBottomOf="@+id/constraintLayout"
+        ads:layout_constraintEnd_toStartOf="@+id/constraintLayout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,9 +3,9 @@
 
     <style name="Theme.ImageToText" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#343D6D</item>
-        <item name="colorPrimaryDark">#343D6D</item>
-        <item name="colorAccent">#343D6D</item>
+        <item name="colorPrimary">#3D5663</item>
+        <item name="colorPrimaryDark">#3D5663</item>
+        <item name="colorAccent">#3D5663</item>
     </style>
     <style name="Theme.ImageToText.AdAttribution">
         <item name="android:layout_width">wrap_content</item>
@@ -17,6 +17,9 @@
         <item name="android:background">#FFCC66</item>
         <item name="android:width">15dp</item>
         <item name="android:height">15dp</item>
+    </style>
+    <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <string name="ad_attribution">Ad</string>

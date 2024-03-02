@@ -12,7 +12,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         jcenter()
-        maven { url = uri("https://maven.google.com") } // Use uri() function to specify the URL
+        maven { url = uri("https://maven.google.com") }
+        maven { url = uri("https://jitpack.io") }
+// Use uri() function to specify the URL
     }
 
 }

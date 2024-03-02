@@ -1,10 +1,13 @@
 package com.example.image_to_text.ui.splashscreen
 
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -23,11 +26,15 @@ import com.google.android.gms.ads.MobileAds
 
 class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
-    private val SPLASH_SCREEN_DURATION = 4000 // 3 seconds
+    private val SPLASH_SCREEN_DURATION = 1000 // 3 seconds
     private var progressBar: ProgressBar? = null
     private var adView: AdView? = null
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var billingClient: BillingClient
+    private var isAnimating = false
+    private lateinit var scanImageView: ImageView
+    private lateinit var scanLine: ImageView
+
     companion object {
         val admobInter = AdmobInter()
     }
@@ -36,13 +43,11 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        val admobInterId = getString(R.string.inter_ad_unit_id)
+        scanImageView = findViewById(R.id.scan)
+        scanLine = findViewById(R.id.linescan)
 
         subscriptionManager = SubscriptionManager(this)
 
-        MobileAds.initialize(this) {
-            admobInter.loadInterAd(this, admobInterId)
-        }
 
         // Initialize BillingClient
         billingClient = BillingClient.newBuilder(this)
@@ -56,6 +61,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     // Query purchases after billing setup
                     queryPurchases()
+                    lifetime()
                 } else {
                     startMainActivity()
                 }
@@ -67,22 +73,8 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
         })
 
         // Find splash image view
-        val splashImage = findViewById<ImageView>(R.id.splash_image)
 
-        // Define the animation (from right to left)
-        val animation = TranslateAnimation(
-            Animation.RELATIVE_TO_PARENT, 1.0f,
-            Animation.RELATIVE_TO_PARENT, 0.0f,
-            Animation.RELATIVE_TO_PARENT, 0.0f,
-            Animation.RELATIVE_TO_PARENT, 0.0f
-        )
-
-        // Set animation duration
-        animation.duration = 1000 // Adjust duration as needed
-
-        // Start the animation
-        splashImage.startAnimation(animation)
-
+        startAnimation()
         // Find progress bar view
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
 
@@ -134,12 +126,19 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
             handlePurchases(purchases)
         } else {
             // Show ad if not subscribed
-            if (!subscriptionManager.isMonthlySubscriptionActive() &&
-                !subscriptionManager.isYearlySubscriptionActive() &&
-                !subscriptionManager.isLifetimeSubscriptionActive()) {
+            if (subscriptionManager.isMonthlySubscriptionActive() ||
+                subscriptionManager.isYearlySubscriptionActive() ||
+                subscriptionManager.isLifetimeSubscriptionActive()) {
+                startProgressBar()
+            }else{
                 adView?.visibility = View.VISIBLE
+                val admobInterId = getString(R.string.inter_ad_unit_id)
+
+                MobileAds.initialize(this) {
+                    admobInter.loadInterAd(this, admobInterId)
+                }
             }
-            startProgressBar()
+
         }
     }
 
@@ -153,8 +152,22 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
             }
             // Show ad if not subscribed
             if (!subscriptionManager.isMonthlySubscriptionActive() &&
-                !subscriptionManager.isYearlySubscriptionActive() &&
-                !subscriptionManager.isLifetimeSubscriptionActive()) {
+                !subscriptionManager.isYearlySubscriptionActive()) {
+                adView?.visibility = View.VISIBLE
+            }
+            startProgressBar()
+        }
+    }
+    private fun lifetime() {
+        billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP) { billingResult, purchases ->
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                if (!purchases.isNullOrEmpty()) {
+                    handlePurchases(purchases)
+                    return@queryPurchasesAsync
+                }
+            }
+            // Show ad if not subscribed
+            if (!subscriptionManager.isLifetimeSubscriptionActive()) {
                 adView?.visibility = View.VISIBLE
             }
             startProgressBar()
@@ -163,17 +176,55 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     private fun handlePurchases(purchases: List<Purchase>) {
         // Handle the purchases here
+        var hasLifetimeSubscription = false
+
         for (purchase in purchases) {
             val skuDetails = purchase.skus.firstOrNull()
             when (skuDetails) {
                 "monthly_subscription_sku" -> subscriptionManager.setMonthlySubscriptionActive(true)
                 "yearly_subscription_sku" -> subscriptionManager.setYearlySubscriptionActive(true)
-                "lifetime_subscription_sku" -> subscriptionManager.setLifetimeSubscriptionActive(true)
+                "lifetime_subscription_sku" -> {
+
+                    subscriptionManager.setLifetimeSubscriptionActive(true)
+                    hasLifetimeSubscription = true
+
+                }
                 else -> {
                     // Handle unknown SKUs
                 }
             }
         }
-        startMainActivity()
+        if (hasLifetimeSubscription) {
+            startProgressBar()
+            startMainActivity()
+        } else {
+            // If the user does not have a lifetime subscription, continue with the progress bar animation
+            startProgressBar()
+        }
+    }
+    private fun startAnimation() {
+        // Check if animation is already running
+        if (!isAnimating) {
+            // Create and start the animator for translationY property
+            val animator = ObjectAnimator.ofFloat(scanImageView, "translationY", 0f, -300f).apply {
+                duration = 2000 // Set the duration of each animation cycle
+                repeatCount = ObjectAnimator.INFINITE // Repeat the animation infinitely
+                repeatMode = ObjectAnimator.REVERSE // Reverse the animation direction after each cycle
+                start() // Start the animation
+            }
+            val animator1 = ObjectAnimator.ofFloat(scanLine, "translationY", 0f, -300f).apply {
+                duration = 2000 // Set the duration of each animation cycle
+                repeatCount = ObjectAnimator.INFINITE // Repeat the animation infinitely
+                repeatMode = ObjectAnimator.REVERSE // Reverse the animation direction after each cycle
+                start() // Start the animation
+            }
+            isAnimating = true
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop the animation when the activity is destroyed to prevent memory leaks
+        scanImageView.clearAnimation()
     }
 }

@@ -14,9 +14,13 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -55,19 +59,15 @@ class ViewTranslationActivity : AppCompatActivity() {
     private val NOTIFICATION_ID = 1001
     private var mInterstitialAd: InterstitialAd? = null
     private lateinit var subscriptionManager: SubscriptionManager
+    private var textToSpeech: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_translation)
 
-        SplashActivity.admobInter.showInterAd(this){
-            SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
-        }
+
         subscriptionManager = SubscriptionManager(this)
 
-        val filePath = intent.getStringExtra("imageFilePath")
-        val yourString = intent.getStringExtra("yourString")
-        val bitmap = BitmapFactory.decodeFile(filePath)
         val adView: AdView = findViewById(R.id.adView)
         val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
         val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
@@ -79,10 +79,16 @@ class ViewTranslationActivity : AppCompatActivity() {
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
+            SplashActivity.admobInter.showInterAd(this){
+                SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
+            }
             val adRequest = AdRequest.Builder().build()
             adView.loadAd(adRequest)
         }
 
+        val filePath = intent.getStringExtra("imageFilePath")
+        val yourString = intent.getStringExtra("yourString")
+        val bitmap = BitmapFactory.decodeFile(filePath)
         back = findViewById(R.id.back)
         imageView = findViewById(R.id.imageView)
         copy = findViewById(R.id.copy)
@@ -111,6 +117,35 @@ class ViewTranslationActivity : AppCompatActivity() {
         imageView.setImageBitmap(bitmap)
         sourceLanguage.text = yourString
 
+        textToSpeech = TextToSpeech(
+            applicationContext
+        ) { status ->
+            if (status != TextToSpeech.ERROR) {
+                textToSpeech!!.setLanguage(Locale.getDefault())
+            } else {
+                Toast.makeText(
+                    this@ViewTranslationActivity,
+                    "Text-to-Speech initialization failed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        val speaker:ImageView=findViewById(R.id.speaker)
+        speaker.setOnClickListener {
+            speakText()
+        }
+    }
+    private fun speakText() {
+        // Get text from EditText
+        val text = sourceLanguage.text.toString()
+
+        if (text.isNotEmpty()) {
+            // Speak the text
+            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        } else {
+            Toast.makeText(this, "EditText is empty", Toast.LENGTH_SHORT).show()
+        }
     }
     private fun saveImageAndTextToSQLite(context: Context, bitmap: Bitmap, text: String) {
         val databaseHelper = DatabaseHelper(context)
@@ -118,7 +153,19 @@ class ViewTranslationActivity : AppCompatActivity() {
         val insertedRowId = databaseHelper.insertData(imageData, text)
         if (insertedRowId != -1L) {
             //Toast.makeText(context, "Image and text saved to SQLite database!", Toast.LENGTH_SHORT).show()
-            showNotification(context, "Image and text saved", "Image and text saved to SQLite database!")
+            val handler = Handler(Looper.getMainLooper())
+            val progressBar:ProgressBar
+            progressBar=findViewById(R.id.progressBar)
+            progressBar.visibility=View.VISIBLE
+            handler.postDelayed({
+
+                Toast.makeText(this, "Image Saved to Collections!", Toast.LENGTH_SHORT).show()
+                progressBar.visibility=View.GONE
+                finish()
+            }, 2000)
+            //showNotification(context, "Image and text saved", "Image and text saved to SQLite database!")
+
+
         } else {
             //Toast.makeText(context, "Failed to save image and text to SQLite database", Toast.LENGTH_SHORT).show()
         }
@@ -189,5 +236,9 @@ class ViewTranslationActivity : AppCompatActivity() {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         startActivity(Intent.createChooser(shareIntent, "Share via"))
+    }
+    override fun onPause() {
+        super.onPause()
+        textToSpeech?.stop()
     }
 }

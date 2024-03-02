@@ -1,27 +1,31 @@
 package com.example.image_to_text.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -29,19 +33,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.image_to_text.R
+import com.example.image_to_text.databinding.ActivityMainBinding
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
+import com.example.image_to_text.ui.activities.CameraActivity
 import com.example.image_to_text.ui.history.HistoryActivity
 import com.example.image_to_text.ui.inapp.InAppActivity
 import com.example.image_to_text.ui.splashscreen.SplashActivity
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.FirebaseApp
@@ -62,18 +66,21 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.Locale
 
+
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
     private val REQUEST_CAMERA = 1
     private val REQUEST_GALLERY = 2
 
-    private var imageViewCamera: MaterialButton? = null
-    private var imageViewGallery: MaterialButton? = null
-    private var imageViewPhoto: ImageView? = null
-    private var history: ImageView? = null
-    private var menu: ImageView? = null
+    private lateinit var imageViewCamera: LinearLayout
+    private lateinit var imageViewGallery: LinearLayout
+    private lateinit var imageViewPhoto: ImageView
+    private lateinit var history: LinearLayout
+    private lateinit var menu: ImageView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var languageArrayList: ArrayList<ModelLanguage>
-    private lateinit var destinationLanguageChooseBtn: MaterialButton
+    private lateinit var destinationLanguageChooseBtn: Button
     private var destinationLanguageCode = "es"
     private var destinationLanguageTitle = "Spanish"
     private var mInterstitialAd: InterstitialAd? = null
@@ -89,17 +96,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var share: ImageView
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var adView: AdView
+    private var textToSpeech: TextToSpeech? = null
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 100
+        var fuckingText: String = ""
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        setContentView(com.example.image_to_text.R.layout.activity_main)
-        adView=findViewById(R.id.adView)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        checkPermissions()
+
+        val imageFilePath = intent.getStringExtra("imageFilePath")
+        if (imageFilePath != null) {
+            val bitmap = BitmapFactory.decodeFile(imageFilePath)
+            binding.imageViewPhoto.setImageBitmap(bitmap)
+            val string = intent.getStringExtra("string")
+            binding.sourceLanguage.setText(string)
+        }
+
+        adView = binding.adView
         subscriptionManager = SubscriptionManager(this)
 
         // Check subscription status
@@ -115,37 +135,36 @@ class MainActivity : AppCompatActivity() {
             showAds()
         }
         loadAvailableLanguages()
-        destinationLanguageChooseBtn = findViewById<MaterialButton>(R.id.destinationLanguageChooseBtn)
+        destinationLanguageChooseBtn = binding.destinationLanguageChooseBtn
         destinationLanguageChooseBtn.setOnClickListener {
             destinationLanguageChoose()
         }
-        translateBtn = findViewById(R.id.translateBtn)
+        translateBtn = binding.translateBtn
         translateBtn.setOnClickListener {
             validateData()
         }
-        history = findViewById(R.id.history)
-        history?.setOnClickListener {
+        history = binding.history
+        history.setOnClickListener {
             val intent = Intent(this, HistoryActivity::class.java)
             startActivity(intent)
         }
-        sourceLanguage = findViewById(R.id.sourceLanguage)
-        val yourString=sourceLanguage.text.toString()
-        copy = findViewById(R.id.copy)
-        share = findViewById(R.id.share)
+        sourceLanguage = binding.sourceLanguage
+        val yourString = sourceLanguage.text.toString()
+        copy = binding.copy
+        share = binding.share
         copy.setOnClickListener {
             yourString?.let { it1 -> copyTextToClipboard(it1) }
         }
         share.setOnClickListener {
             yourString?.let { it1 -> shareImageAndText(it1) }
         }
-        menu = findViewById<ImageView>(R.id.menu)
-        drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
+        menu = binding.menu
+        drawerLayout = binding.drawerLayout
 
-        menu?.setOnClickListener {
+        menu.setOnClickListener {
             // Open the drawer when the menu ImageView is clicked
             drawerLayout.openDrawer(GravityCompat.START)
         }
-
 
         // Add ActionBarDrawerToggle to handle opening and closing the drawer
         val toggle = ActionBarDrawerToggle(
@@ -154,10 +173,9 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-
-        navigationView=findViewById(R.id.navigationView)
-        navigationView.setNavigationItemSelectedListener { menu->
-            when (menu.itemId){
+        navigationView = binding.navigationView
+        navigationView.setNavigationItemSelectedListener { menu ->
+            when (menu.itemId) {
                 R.id.menu_remove_ads -> {
                     val intent = Intent(this, InAppActivity::class.java)
                     startActivity(intent)
@@ -225,18 +243,54 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        imageViewCamera = binding.imageViewCamera
+        imageViewGallery = binding.imageViewGallery
+        imageViewPhoto = binding.imageViewPhoto
 
-        imageViewCamera = findViewById<MaterialButton>(R.id.imageViewCamera)
-        imageViewGallery = findViewById<MaterialButton>(R.id.imageViewGallery)
-        imageViewPhoto = findViewById<ImageView>(R.id.imageViewPhoto)
-
-        imageViewCamera?.setOnClickListener {
+        imageViewCamera.setOnClickListener {
+            binding.progressBar.visibility=View.VISIBLE
             count=1
             ad(count)
         }
-        imageViewGallery?.setOnClickListener {
-            count=2
+        imageViewGallery.setOnClickListener {
+            binding.progressBar.visibility=View.VISIBLE
+            count = 2
             ad(count)
+        }
+        textToSpeech = TextToSpeech(
+            applicationContext
+        ) { status ->
+            if (status != TextToSpeech.ERROR) {
+                // Set language to Arabic
+                textToSpeech?.language = Locale("ar")
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Text-to-Speech initialization failed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        val speaker:ImageView=binding.speaker
+        speaker.setOnClickListener {
+            speakText()
+        }
+
+        val eraseImageView = binding.erase
+        eraseImageView.setOnClickListener(){
+            binding.sourceLanguage.text.clear()
+        }
+
+    }
+    private fun speakText() {
+        // Get text from EditText
+        val text = sourceLanguage.text.toString()
+
+        if (text.isNotEmpty()) {
+            // Speak the text
+            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        } else {
+            Toast.makeText(this, "EditText is empty", Toast.LENGTH_SHORT).show()
         }
     }
     private fun hideAds() {
@@ -256,13 +310,21 @@ class MainActivity : AppCompatActivity() {
 
         if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
             if (count == 1) {
-                openCamera()
+                val intent = Intent(this, CameraActivity::class.java)
+                startActivity(intent)
+                binding.progressBar.visibility=View.GONE
+                finish()
+//                openCamera()
             } else if (count == 2) {
+                binding.progressBar.visibility=View.GONE
                 openGallery()
             }
         } else {
-            SplashActivity.admobInter.showInterAd(this)
-            {
+            SplashActivity.admobInter.showInterAd(this) {
+                SplashActivity.admobInter.loadInterAd(
+                    this,
+                    getString(R.string.inter_ad_unit_id)
+                )
                 if (count == 1) {
                     if (ContextCompat.checkSelfPermission(
                             this,
@@ -270,7 +332,10 @@ class MainActivity : AppCompatActivity() {
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
                         // Permission already granted, open camera
-                        openCamera()
+                        val intent = Intent(this, CameraActivity::class.java)
+                        startActivity(intent)
+                        binding.progressBar.visibility=View.GONE
+                        finish()
                     } else {
                         // Request permission if not granted
                         ActivityCompat.requestPermissions(
@@ -279,13 +344,14 @@ class MainActivity : AppCompatActivity() {
                             PERMISSION_REQUEST_CODE
                         )
                     }
-                    SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
+
                 } else if (count == 2) {
+                    binding.progressBar.visibility=View.GONE
                     openGallery()
-                    SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
                 }
             }
         }
+
 
     }
     private fun copyTextToClipboard(text: String) {
@@ -309,6 +375,26 @@ class MainActivity : AppCompatActivity() {
                 // Permission denied, inform user
                 Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
             }
+        }
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, initialize Text-to-Speech here or perform any other action
+            } else {
+                // Permission denied, inform the user or take appropriate action
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    private fun checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted, request it
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                PERMISSION_REQUEST_CODE)
+        } else {
+            // Permission is already granted
+            // Initialize Text-to-Speech here or perform any other action
         }
     }
 
@@ -341,6 +427,14 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent.createChooser(shareIntent, "Share via"))
     }
 
+    override fun onPause() {
+        super.onPause()
+        textToSpeech?.stop()
+    }
+    override fun onResume() {
+        super.onResume()
+        // Observe the textBlocks LiveData
+    }
 
 
     private fun openCamera() {
@@ -371,14 +465,14 @@ class MainActivity : AppCompatActivity() {
 
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                REQUEST_CAMERA -> {
-                    val extras: Bundle? = data?.extras
-                    val imageBitmap: Bitmap? = extras?.get("data") as? Bitmap
-                    imageViewPhoto?.setImageBitmap(imageBitmap)
-
-                    // Convert the captured bitmap to FirebaseVisionImage
-                    imageBitmap?.let { processImage(it) }
-                }
+//                REQUEST_CAMERA -> {
+//                    val extras: Bundle? = data?.extras
+//                    val imageBitmap: Bitmap? = extras?.get("data") as? Bitmap
+//                    imageViewPhoto?.setImageBitmap(imageBitmap)
+//
+//                    // Convert the captured bitmap to FirebaseVisionImage
+//                    imageBitmap?.let { processImage(it) }
+//                }
                 REQUEST_GALLERY -> {
                     val selectedImageUri: Uri? = data?.data
                     imageViewPhoto?.setImageURI(selectedImageUri)
@@ -450,6 +544,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadAvailableLanguages() {
         languageArrayList = ArrayList()
         val languageCodeList = TranslateLanguage.getAllLanguages()
+        val countryFlags=TranslateLanguage.getAllLanguages()
         for (languageCode in languageCodeList) {
             val languageTitle = Locale(languageCode).displayLanguage
             val modelLanguage = ModelLanguage(languageCode, languageTitle)
@@ -465,7 +560,6 @@ class MainActivity : AppCompatActivity() {
             startTranslations(sourceLanguageText)
         }
     }
-
     private fun startTranslations(sourceLanguageText: String) {
         progressDialog = Dialog(this)
         progressDialog.setCanceledOnTouchOutside(false)
@@ -487,19 +581,15 @@ class MainActivity : AppCompatActivity() {
                 val translationResult = translator.downloadModelIfNeeded(downloadConditions)
                     .await()
                 val translatedText = translator.translate(sourceLanguageText).await()
+                val imageViewPhoto = findViewById<ImageView>(R.id.imageViewPhoto)
+                val bitmap = imageViewPhoto.drawable.toBitmap()
+
+                val file = saveBitmapToFile(bitmap)
+                val filePath = file.absolutePath
+
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    val imageViewPhoto = findViewById<ImageView>(R.id.imageViewPhoto)
-                    val bitmap = (imageViewPhoto.drawable as BitmapDrawable).bitmap
-
-                    val file = saveBitmapToFile(bitmap)
-                    val filePath = file.absolutePath
-                    val intent = Intent(applicationContext, ViewTranslationActivity::class.java)
-                    intent.putExtra("imageFilePath", filePath)
-                    intent.putExtra("yourString", translatedText.toString())
-                    startActivity(intent)
-
-
+                    navigateToViewTranslationActivity(filePath, translatedText.toString())
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -509,7 +599,30 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    fun saveBitmapToFile(bitmap: Bitmap): File {
+
+    private fun navigateToViewTranslationActivity(filePath: String, translatedText: String) {
+        val intent = Intent(applicationContext, ViewTranslationActivity::class.java)
+        intent.putExtra("imageFilePath", filePath)
+        intent.putExtra("yourString", translatedText)
+        startActivity(intent)
+    }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.drawer_menu, menu)
+
+        // Inflate the header layout
+        val headerView = layoutInflater.inflate(R.layout.menu_header, null)
+
+        // Add the header to the menu
+        val header = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, "header")
+        header.actionView = headerView
+        header.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
+        return true
+    }
+
+
+    private fun saveBitmapToFile(bitmap: Bitmap): File {
         // Get the directory for storing images
         val directory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "MyApp")
         // Create the directory if it doesn't exist
@@ -529,4 +642,38 @@ class MainActivity : AppCompatActivity() {
         }
         return file
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        // Shutdown Text-to-Speech engine when activity is destroyed to release resources
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+    }
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_exit, null)
+        val dialogMessage = dialogView.findViewById<TextView>(R.id.dialog_message)
+        val btnExit = dialogView.findViewById<TextView>(R.id.btn_exit)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+
+        val dialogBuilder = AlertDialog.Builder(this, R.style.CustomAlertDialogStyle)
+            .setView(dialogView)
+            .setCancelable(false)
+
+        val alertDialog = dialogBuilder.create()
+
+        btnExit.setOnClickListener {
+            // Exit the app
+            finish()
+            alertDialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            // Dismiss the dialog
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
+
+
 }

@@ -71,10 +71,6 @@ class HistoryActivity : AppCompatActivity() {
         delete = findViewById(R.id.delete)
 
         back.setOnClickListener {
-            val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
-            val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
-            val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
-
             if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
                 // User is subscribed, hide ads
                 finish()
@@ -89,11 +85,26 @@ class HistoryActivity : AppCompatActivity() {
         }
 
         delete.setOnClickListener {
-            val adapter = recyclerView.adapter as? ImageTextAdapter
-            val selectedItems = adapter?.getSelectedItems()?.toList() // Convert to List
-            selectedItems?.forEach { position ->
-                adapter.removeItemAt(position)
-            }
+            val builder = AlertDialog.Builder(this)
+
+            // Set the dialog message and buttons
+            builder.setMessage("Do you want to delete?")
+                .setPositiveButton("Delete") { dialog, id ->
+                    val adapter = recyclerView.adapter as? ImageTextAdapter
+                    val selectedItems = adapter?.getSelectedItems()?.toList() // Convert to List
+                    selectedItems?.forEach { position ->
+                        adapter.removeItemAt(position)
+                    }
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, id ->
+
+                    dialog.dismiss()
+                }
+
+            // Create the AlertDialog object and show it
+            builder.create().show()
+
         }
 
         recyclerView.layoutManager = LinearLayoutManager(this)

@@ -20,7 +20,7 @@
     <item
         android:id="@+id/menu_share_app"
         android:title="Share App"
-        android:icon="@drawable/ic_share"
+        android:icon="@drawable/share_black"
         app:iconTint="@color/white"/>
 
     <item
@@ -32,7 +32,7 @@
     <item
         android:id="@+id/menu_rate_app"
         android:title="Rate App"
-        android:icon="@drawable/ic_rate_us"
+        android:icon="@drawable/ic_star"
         app:iconTint="@color/white"/>
 
     <item

@@ -1,16 +1,27 @@
 package com.example.image_to_text.ui
 
 
+import android.Manifest
 import android.app.ProgressDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
+import android.text.Editable
+import android.text.TextWatcher
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
@@ -18,6 +29,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
@@ -32,6 +45,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.material.button.MaterialButton
 import com.google.mlkit.common.model.DownloadConditions
+import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
@@ -45,12 +59,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.max
 
 class TranslationsActivity : AppCompatActivity() {
     private lateinit var sourceLanguage: EditText
     private lateinit var destinationLanguageTv: TextView
-    private lateinit var sourceLanguageChooseBtn: MaterialButton
-    private lateinit var destinationLanguageChooseBtn: MaterialButton
+    private lateinit var sourceLanguageChooseBtn: Button
+    private lateinit var destinationLanguageChooseBtn: Button
     private lateinit var translateBtn: MaterialButton
     private lateinit var back: ImageView
     private lateinit var translator: Translator
@@ -71,23 +86,44 @@ class TranslationsActivity : AppCompatActivity() {
     private lateinit var copy1: ImageView
     private lateinit var share1: ImageView
     private lateinit var subscriptionManager: SubscriptionManager
-
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var micImageView: ImageView
+    private lateinit var recognizedTextView: TextView
     private lateinit var languageArrayList: ArrayList<ModelLanguage>
+    private var textToSpeech: TextToSpeech? = null
+
+    companion object {
+        private const val RECORD_AUDIO_PERMISSION_REQUEST_CODE = 100
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_translations)
         subscriptionManager = SubscriptionManager(this)
-
+        micImageView = findViewById(R.id.mic)
         sourceLanguage = findViewById(R.id.sourceLanguage)
         back = findViewById(R.id.back)
         destinationLanguageTv = findViewById(R.id.destinationLanguageTv)
         sourceLanguageChooseBtn = findViewById(R.id.sourceLanguageChooseBtn)
         destinationLanguageChooseBtn = findViewById(R.id.destinationLanguageChooseBtn)
         translateBtn = findViewById(R.id.translateBtn)
+        recognizedTextView = findViewById(R.id.recognizedTextView)
+        recognizedTextView.movementMethod = ScrollingMovementMethod() // Enable scrolling
 
         progressDialog = ProgressDialog(this)
         progressDialog.setTitle("Please Wait")
         progressDialog.setCanceledOnTouchOutside(false)
+
+        SplashActivity.admobInter.showInterAd(this@TranslationsActivity) {
+            SplashActivity.admobInter.loadInterAd(
+                this@TranslationsActivity,
+                getString(R.string.inter_ad_unit_id)
+            )
+
+        }
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        if (!isSpeechRecognitionPermissionGranted()) {
+            requestSpeechRecognitionPermission()
+        }
 
         val adView: AdView = findViewById(R.id.adView)
         val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
@@ -100,6 +136,12 @@ class TranslationsActivity : AppCompatActivity() {
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
+            SplashActivity.admobInter.showInterAd(this) {
+                SplashActivity.admobInter.loadInterAd(
+                    this,
+                    getString(R.string.inter_ad_unit_id)
+                )
+            }
             val adRequest = AdRequest.Builder().build()
             adView.loadAd(adRequest)
         }
@@ -123,7 +165,6 @@ class TranslationsActivity : AppCompatActivity() {
             }
 
         }
-
         loadAvailableLanguages()
 
 
@@ -157,18 +198,186 @@ class TranslationsActivity : AppCompatActivity() {
             destinationLanguageChoose()
         }
 
-        translateBtn.setOnClickListener {
-            validateData()
+        sourceLanguage.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // This method is called to notify you that, within `s`, the `count` characters beginning at `start` are about to be replaced by new text with length `after`.
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // This method is called to notify you that, somewhere within `s`, the text has been changed.
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // This method is called to notify you that, somewhere within `s`, the text has been changed.
+                validateData()
+            }
+        })
+
+        val eraseImageView = findViewById<ImageView>(R.id.erase)
+        eraseImageView.setOnClickListener(){
+            sourceLanguage.text.clear()
+        }
+
+        micImageView.setOnLongClickListener {
+            startSpeechRecognition()
+            true // Return true to consume the long click event
+        }
+
+        micImageView.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                speechRecognizer.stopListening()
+            }
+            false
+        }
+
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {}
+
+            override fun onBeginningOfSpeech() {}
+
+            override fun onRmsChanged(rmsdB: Float) {}
+
+            override fun onBufferReceived(buffer: ByteArray?) {}
+
+            override fun onEndOfSpeech() {}
+
+            override fun onError(error: Int) {
+                Log.e("SpeechRecognition", "Error $error")
+                Toast.makeText(applicationContext, "Error occurred during speech recognition", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val recognizedText = matches[0]
+                    // Set recognized text to the sourceLanguage EditText
+                    sourceLanguage.setText(recognizedText)
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {
+                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                    val recognizedText = matches[0]
+                    // Append the recognized text to the text view
+
+                    recognizedTextView.append(recognizedText + " ")
+
+                    // Scroll to the end to show the latest text
+                    val scrollAmount = recognizedTextView.layout.getLineTop(recognizedTextView.lineCount) - recognizedTextView.height
+                    recognizedTextView.scrollTo(0, max(0, scrollAmount))
+                }
+            }
+
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
+        textToSpeech = TextToSpeech(
+            applicationContext
+        ) { status ->
+            if (status != TextToSpeech.ERROR) {
+                // Set language to Arabic
+                textToSpeech?.language = Locale("ar")
+            } else {
+                Toast.makeText(
+                    this@TranslationsActivity,
+                    "Text-to-Speech initialization failed",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        val speaker:ImageView=findViewById(R.id.speaker)
+        speaker.setOnClickListener {
+            speakText()
         }
     }
+    private fun speakText() {
+        // Get text from EditText
+        val text = destinationLanguageTv.text.toString()
 
+        if (text.isNotEmpty()) {
+            // Speak the text
+            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+        } else {
+            Toast.makeText(this, "EditText is empty", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun identifyLanguage(text: String) {
+        val languageIdentifier = LanguageIdentification.getClient()
+
+        languageIdentifier.identifyLanguage(text)
+            .addOnSuccessListener { languageCode ->
+                // Language identified successfully, translate and set the text
+                translateAndSetText(text, languageCode)
+            }
+            .addOnFailureListener { e ->
+                // Language identification failed, handle the error
+                Log.e("LanguageIdentification", "Language identification failed: ${e.message}")
+                Toast.makeText(applicationContext, "Language identification failed", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun translateAndSetText(text: String, languageCode: String) {
+        // Translate the text to the identified language
+        val translatorOptions = TranslatorOptions.Builder()
+            .setSourceLanguage(languageCode)
+            .setTargetLanguage(destinationLanguageCode)
+            .build()
+        val translator = Translation.getClient(translatorOptions)
+
+        translator.translate(text)
+            .addOnSuccessListener { translatedText ->
+                // Set the translated text to the destinationLanguageTv TextView
+                destinationLanguageTv.text = translatedText
+            }
+            .addOnFailureListener { e ->
+                // Translation failed, handle the error
+                Log.e("Translation", "Translation failed: ${e.message}")
+                Toast.makeText(applicationContext, "Translation failed", Toast.LENGTH_SHORT).show()
+            }
+    }
     private fun copyTextToClipboard(text: String) {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
         //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
     }
+    private fun startSpeechRecognition() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        speechRecognizer.startListening(intent)
+    }
+    private fun isSpeechRecognitionPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
+    private fun requestSpeechRecognitionPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.RECORD_AUDIO),
+            RECORD_AUDIO_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == RECORD_AUDIO_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, start speech recognition
+                startSpeechRecognition()
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message)
+                Toast.makeText(this, "Speech recognition permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     private fun shareImageAndText(text: String) {
         // Create a directory to store text file
         val directory = File(filesDir, "images")
@@ -229,13 +438,8 @@ class TranslationsActivity : AppCompatActivity() {
                 val translatedText = translator.translate(sourceLanguageText).await()
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-                    SplashActivity.admobInter.showInterAd(this@TranslationsActivity) {
-                        SplashActivity.admobInter.loadInterAd(
-                            this@TranslationsActivity,
-                            getString(R.string.inter_ad_unit_id)
-                        )
-                        destinationLanguageTv.text = translatedText
-                    }
+
+                    destinationLanguageTv.text = translatedText
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
