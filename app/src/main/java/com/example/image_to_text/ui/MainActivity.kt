@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
-                R.id.menu_app_language -> {
+               /* R.id.menu_app_language -> {
                     // Handle click on the item
                     // For example, you can perform some action here
                     val builder = AlertDialog.Builder(this)
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity() {
                     val dialog = builder.create()
                     dialog.show()
                     true
-                }
+                }*/
                 R.id.menu_share_app -> {
                     // Handle click on the item
                     // For example, you can perform some action here

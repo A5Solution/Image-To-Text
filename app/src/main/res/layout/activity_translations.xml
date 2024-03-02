@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:windowSoftInputMode="adjustResize"
     tools:context=".ui.TranslationsActivity">
 
     <LinearLayout
@@ -37,69 +38,267 @@
             android:textStyle="bold" />
         <!-- History Icon -->
     </LinearLayout>
-
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="52dp"
-        android:orientation="vertical"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/layout">
-
-        <androidx.cardview.widget.CardView
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout"
+        app:layout_constraintStart_toStartOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"> <!-- Adjust elevation as needed -->
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView4"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="280dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/cardView3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"> <!-- Adjust elevation as needed -->
 
-                <LinearLayout
-                    android:id="@+id/linearLayout9"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/linearLayout9"
                         android:layout_width="match_parent"
-                        android:layout_height="70dp"
-                        android:layout_weight="1"
-                        android:background="#DAD8D8"
-                        android:gravity="center"
-                        android:padding="16dp">
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:layout_weight="1"
+                            android:background="#DAD8D8"
+                            android:gravity="center"
+                            android:padding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="start">
+
+                                <androidx.appcompat.widget.AppCompatButton
+                                    android:id="@+id/sourceLanguageChooseBtn"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="10dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/corner_edges_background"
+                                    android:drawableEnd="@drawable/ic_down"
+                                    android:paddingStart="30dp"
+                                    android:paddingEnd="20dp"
+                                    android:text="English"
+                                    android:textColor="@color/black"
+                                    app:iconGravity="textEnd"
+                                    app:iconPadding="30dp"
+                                    app:iconSize="15dp"
+                                    app:iconTint="@color/black" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <ImageView
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:src="@drawable/arrows" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end">
+
+                                <androidx.appcompat.widget.AppCompatButton
+                                    android:id="@+id/destinationLanguageChooseBtn"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/corner_edges_background"
+                                    android:drawableEnd="@drawable/ic_down"
+                                    android:paddingStart="30dp"
+                                    android:paddingEnd="20dp"
+                                    android:text="Spanish"
+                                    android:textColor="@color/black"
+                                    app:iconGravity="textEnd"
+                                    app:iconPadding="30dp"
+                                    app:iconSize="15dp"
+                                    app:iconTint="@color/black" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <!-- First child LinearLayout -->
+
+                    </LinearLayout>
+
+
+                    <ImageView
+                        android:id="@+id/erase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/cross"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
+                    <!-- Add EditText and other views here -->
+                    <ScrollView
+                        android:id="@+id/scrollView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout9"
+                        app:layout_constraintVertical_weight="1">
+
+                        <EditText
+                            android:id="@+id/sourceLanguage"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:gravity="top"
+                            android:hint="Enter text"
+                            android:padding="16dp" />
+
+                    </ScrollView>
+
+                    <TextView
+                        android:id="@+id/recognizedTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/darker_gray"
+                        android:maxLines="5"
+                        android:padding="8dp"
+                        android:scrollbars="vertical"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
+
+                    <!-- Add share and copy images -->
+                    <LinearLayout
+                        android:id="@+id/linearLayout10"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="end"
+                        android:orientation="horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <ImageView
+                            android:id="@+id/share"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_margin="8dp"
+                            android:src="@drawable/ic_share_gray" />
+
+                        <ImageView
+                            android:id="@+id/copy"
+                            android:layout_width="30dp"
+                            android:layout_height="25dp"
+                            android:layout_margin="8dp"
+                            android:src="@drawable/ic_copy_gray" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="end"
+                        android:orientation="horizontal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <ImageView
+                            android:id="@+id/mic"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_margin="8dp"
+                            android:src="@drawable/ic_mic" />
+
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView3"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_weight="0"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardView4"> <!-- Adjust elevation as needed -->
+
+                <LinearLayout
+                    android:id="@+id/trLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <!-- First child LinearLayout -->
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_weight="1">
+                        <TextView
+                            android:id="@+id/destinationLanguageTv"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="Translation"
+                            android:textSize="18sp" />
+                    </ScrollView>
+
+
+                    <!-- Add share and copy images -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:orientation="horizontal">
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="0dp"
+                            android:layout_marginBottom="15dp"
                             android:layout_weight="1"
-                            android:gravity="start">
+                            android:gravity="center|start">
 
-                            <androidx.appcompat.widget.AppCompatButton
-                                android:id="@+id/sourceLanguageChooseBtn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="10dp"
-                                android:layout_weight="1"
-                                android:background="@drawable/corner_edges_background"
-                                android:drawableEnd="@drawable/ic_down"
-                                android:paddingStart="30dp"
-                                android:paddingEnd="20dp"
-                                android:text="English"
-                                android:textColor="@color/black"
-                                app:iconGravity="textEnd"
-                                app:iconPadding="30dp"
-                                app:iconSize="15dp"
-                                app:iconTint="@color/black" />
+                            <ImageView
+                                android:id="@+id/speaker"
+                                android:layout_width="35dp"
+                                android:layout_height="35dp"
+                                android:src="@drawable/ic_speaker" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -107,231 +306,49 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/share1"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"
+                                android:layout_margin="8dp"
+                                android:src="@drawable/ic_share_gray" />
+
+                            <ImageView
+                                android:id="@+id/copy1"
                                 android:layout_width="30dp"
-                                android:layout_height="30dp"
-                                android:src="@drawable/arrows" />
+                                android:layout_height="25dp"
+                                android:layout_margin="8dp"
+                                android:src="@drawable/ic_copy_gray" />
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="end">
-
-                            <androidx.appcompat.widget.AppCompatButton
-                                android:id="@+id/destinationLanguageChooseBtn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="10dp"
-                                android:layout_weight="1"
-                                android:background="@drawable/corner_edges_background"
-                                android:drawableEnd="@drawable/ic_down"
-                                android:paddingStart="30dp"
-                                android:paddingEnd="20dp"
-                                android:text="Spanish"
-                                android:textColor="@color/black"
-                                app:iconGravity="textEnd"
-                                app:iconPadding="30dp"
-                                app:iconSize="15dp"
-                                app:iconTint="@color/black" />
-                        </LinearLayout>
                     </LinearLayout>
-                    <!-- First child LinearLayout -->
-
                 </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-
-                <ImageView
-                    android:id="@+id/erase"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/cross"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
-                <!-- Add EditText and other views here -->
-                <ScrollView
-                    android:id="@+id/scrollView2"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="28dp"
-                    app:layout_constraintTop_toBottomOf="@+id/linearLayout9"
-                    app:layout_constraintVertical_weight="1">
-
-                    <EditText
-                        android:id="@+id/sourceLanguage"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@android:color/transparent"
-                        android:gravity="top"
-                        android:hint="Enter text"
-                        android:padding="16dp" />
-
-                </ScrollView>
-
-                <TextView
-                    android:id="@+id/recognizedTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/darker_gray"
-                    android:maxLines="5"
-                    android:padding="8dp"
-                    android:scrollbars="vertical"
-                    android:textColor="@android:color/white"
-                    android:textSize="18sp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
-
-                <!-- Add share and copy images -->
-                <LinearLayout
-                    android:id="@+id/linearLayout10"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="end"
-                    android:orientation="horizontal"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <ImageView
-                        android:id="@+id/share"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_margin="8dp"
-                        android:src="@drawable/ic_share_gray" />
-
-                    <ImageView
-                        android:id="@+id/copy"
-                        android:layout_width="30dp"
-                        android:layout_height="25dp"
-                        android:layout_margin="8dp"
-                        android:src="@drawable/ic_copy_gray" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="end"
-                    android:orientation="horizontal"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
-
-                    <ImageView
-                        android:id="@+id/mic"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:layout_margin="8dp"
-                        android:src="@drawable/ic_mic" />
-
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:layout_weight="1"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"> <!-- Adjust elevation as needed -->
-
-            <LinearLayout
-                android:id="@+id/trLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="16dp">
-                <!-- First child LinearLayout -->
-
-
-                <TextView
-                    android:id="@+id/destinationLanguageTv"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="1"
-                    android:hint="Translation"
-                    android:textSize="18sp" />
-
-                <!-- Add share and copy images -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="horizontal">
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="0dp"
-                        android:layout_marginBottom="15dp"
-                        android:gravity="center|start">
-
-                        <ImageView
-                            android:id="@+id/speaker"
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
-                            android:src="@drawable/ic_speaker" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <ImageView
-                            android:id="@+id/share1"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_margin="8dp"
-                            android:src="@drawable/ic_share_gray" />
-
-                        <ImageView
-                            android:id="@+id/copy1"
-                            android:layout_width="30dp"
-                            android:layout_height="25dp"
-                            android:layout_margin="8dp"
-                            android:src="@drawable/ic_copy_gray" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            android:layout_marginBottom="8dp"
-            app:cardElevation="8dp">
-            <com.google.android.gms.ads.AdView
-                android:id="@+id/adView"
-                android:layout_width="match_parent"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView2"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:adSize="LARGE_BANNER"
-                app:adUnitId="@string/banner_ad_unit_id" />
-        </androidx.cardview.widget.CardView>
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardView3">
+
+                <com.google.android.gms.ads.AdView
+                    android:id="@+id/adView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:adSize="LARGE_BANNER"
+                    app:adUnitId="@string/banner_ad_unit_id" />
+            </androidx.cardview.widget.CardView>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 
 
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/translateBtn"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:text="Translate"
-        android:visibility="gone"
-        app:cornerRadius="20dp"
-        app:icon="@drawable/translate"
-        tools:layout_editor_absoluteX="211dp"
-        tools:layout_editor_absoluteY="52dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

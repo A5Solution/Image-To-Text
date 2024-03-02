@@ -2,14 +2,12 @@
     <string name="app_name">Image-To-Text</string>
     <string name="navigation_drawer_open">Open Drawer</string>
     <string name="navigation_drawer_close">Close Drawer</string>
-    <!--
     <string name="banner_ad_unit_id">ca-app-pub-7055337155394452/4579603713</string>
--->
+<!--
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
-    <!--
-    <string name="inter_ad_unit_id">ca-app-pub-7055337155394452/3471919069</string>
 -->
-    <string name="inter_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="inter_ad_unit_id">ca-app-pub-7055337155394452/3471919069</string>
+    <!--<string name="inter_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>-->
     <string name="subscription">When subscribe to premium content, your subscription will renew automatically. You\'ll be charged at the start of every billing cycle until you cancel subscription. You can cancel your subscription from Google Play Store.</string>
     <string name="camera_fab">take a photo</string>
     <string name="select_image_for_text_recognition">receipt with shopping items and prices</string>

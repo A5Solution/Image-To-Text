@@ -105,7 +105,7 @@ class TranslationsActivity : AppCompatActivity() {
         destinationLanguageTv = findViewById(R.id.destinationLanguageTv)
         sourceLanguageChooseBtn = findViewById(R.id.sourceLanguageChooseBtn)
         destinationLanguageChooseBtn = findViewById(R.id.destinationLanguageChooseBtn)
-        translateBtn = findViewById(R.id.translateBtn)
+//        translateBtn = findViewById(R.id.translateBtn)
         recognizedTextView = findViewById(R.id.recognizedTextView)
         recognizedTextView.movementMethod = ScrollingMovementMethod() // Enable scrolling
 
@@ -419,7 +419,7 @@ class TranslationsActivity : AppCompatActivity() {
 
     private fun startTranslations(sourceLanguageText: String) {
         progressDialog.setMessage("Translating...")
-        progressDialog.show()
+        //progressDialog.show()
 
         val translatorOptions = TranslatorOptions.Builder()
             .setSourceLanguage(sourceLanguageCode)
@@ -437,13 +437,13 @@ class TranslationsActivity : AppCompatActivity() {
                     .await()
                 val translatedText = translator.translate(sourceLanguageText).await()
                 withContext(Dispatchers.Main) {
-                    progressDialog.dismiss()
+                    //progressDialog.dismiss()
 
                     destinationLanguageTv.text = translatedText
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    progressDialog.dismiss()
+                    //progressDialog.dismiss()
                     Toast.makeText(
                         this@TranslationsActivity,
                         "Failed! ${e.message}",
@@ -481,6 +481,7 @@ class TranslationsActivity : AppCompatActivity() {
             destinationLanguageCode = languageArrayList[position].languageCode
             destinationLanguageTitle = languageArrayList[position].languageTitle
             destinationLanguageChooseBtn.text = destinationLanguageTitle
+            validateData()
             false
         }
     }
