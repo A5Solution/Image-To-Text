@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:windowSoftInputMode="adjustResize"
     tools:context=".ui.TranslationsActivity">
 
@@ -166,14 +167,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_marginTop="16dp"
-                        app:layout_constraintTop_toBottomOf="@+id/linearLayout9"
-                        app:layout_constraintVertical_weight="1">
+                        app:layout_constraintBottom_toTopOf="@+id/linearLayout10"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
 
                         <EditText
                             android:id="@+id/sourceLanguage"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
                             android:background="@android:color/transparent"
                             android:gravity="top"
                             android:hint="Enter text"
@@ -234,8 +234,8 @@
 
                         <ImageView
                             android:id="@+id/mic"
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:layout_margin="8dp"
                             android:src="@drawable/ic_mic" />
 
@@ -252,7 +252,7 @@
                 android:layout_weight="0"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                app:layout_constraintBottom_toTopOf="@+id/cardView4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cardView4"> <!-- Adjust elevation as needed -->
@@ -273,7 +273,7 @@
                         <TextView
                             android:id="@+id/destinationLanguageTv"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:hint="Translation"
                             android:textSize="18sp" />
                     </ScrollView>
@@ -296,8 +296,8 @@
 
                             <ImageView
                                 android:id="@+id/speaker"
-                                android:layout_width="35dp"
-                                android:layout_height="35dp"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
                                 android:src="@drawable/ic_speaker" />
                         </LinearLayout>
 
@@ -324,26 +324,23 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="8dp"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:background="@color/gray"
+                android:gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardView3">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <com.google.android.gms.ads.AdView
                     android:id="@+id/adView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:adSize="LARGE_BANNER"
-                    app:adUnitId="@string/banner_ad_unit_id" />
-            </androidx.cardview.widget.CardView>
+                    android:layout_width="320dp"
+                    android:layout_height="50dp"
+                    ads:adSize="BANNER"
+                    ads:adUnitId="@string/banner_ad_unit_id" />
+            </LinearLayout>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

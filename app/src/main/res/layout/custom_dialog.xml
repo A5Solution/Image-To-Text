@@ -5,5 +5,5 @@
 <ImageView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:src="@drawable/ic_loading"/>
+    android:src="@drawable/ic_translating"/>
 </LinearLayout>

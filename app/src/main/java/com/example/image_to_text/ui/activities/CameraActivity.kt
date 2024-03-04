@@ -2,6 +2,7 @@ package com.example.image_to_text.ui.activities
 
 import android.Manifest
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -59,6 +60,7 @@ class CameraActivity : AppCompatActivity() {
     private var isFlashOn = false
     private val REQUEST_CODE_PICK_IMAGE = 100
     private lateinit var subscriptionManager: SubscriptionManager
+    private lateinit var progressDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +77,7 @@ class CameraActivity : AppCompatActivity() {
 
         subscriptionManager = SubscriptionManager(this)
 
-        val adView: AdView = binding.bannerAd
+        val adView: AdView = binding.adView
         val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
         val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
         val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
@@ -94,6 +96,10 @@ class CameraActivity : AppCompatActivity() {
             Toast.makeText(this, "please wait ...", Toast.LENGTH_LONG).show()
         }
         binding.save.setOnClickListener(){
+            progressDialog = Dialog(this)
+            progressDialog.setCanceledOnTouchOutside(false)
+            progressDialog.setContentView(R.layout.custom_dialog)
+            progressDialog.show()
             viewModel = ViewModelProvider(this).get(SharedViewModel::class.java)
             viewModel.textBlocks.observe(this) { textBlocks ->
                 // Check if textBlocks has data
@@ -128,6 +134,7 @@ class CameraActivity : AppCompatActivity() {
                         putExtra("imageFilePath", file.absolutePath)
                         putExtra("string", stringBuilder.toString())
                     }
+                    progressDialog.dismiss()
                     startActivity(intent)
                     //Toast.makeText(this, ""+stringBuilder, Toast.LENGTH_SHORT).show()
                     //binding.sourceLanguage.text = stringBuilder.toString().trim().toEditable()

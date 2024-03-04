@@ -28,7 +28,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     private val SPLASH_SCREEN_DURATION = 1000 // 3 seconds
     private var progressBar: ProgressBar? = null
-    private var adView: AdView? = null
+    //private var adView: AdView? = null
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var billingClient: BillingClient
     private var isAnimating = false
@@ -79,12 +79,12 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
         progressBar = findViewById<ProgressBar>(R.id.progress_bar)
 
         // Load banner ad
-        adView = findViewById<AdView>(R.id.banner_ad)
-        val adRequest = AdRequest.Builder().build()
-        adView?.loadAd(adRequest)
+        //adView = findViewById<AdView>(R.id.banner_ad)
+        //val adRequest = AdRequest.Builder().build()
+        //adView?.loadAd(adRequest)
 
         // Set ad listener
-        adView?.adListener = object : AdListener() {
+        /*adView?.adListener = object : AdListener() {
             override fun onAdLoaded() {
                 startProgressBar()
             }
@@ -92,7 +92,8 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
             override fun onAdFailedToLoad(p0: LoadAdError) {
                 startProgressBar()
             }
-        }
+        }*/
+        startProgressBar()
     }
 
     private fun startProgressBar() {
@@ -131,7 +132,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 subscriptionManager.isLifetimeSubscriptionActive()) {
                 startProgressBar()
             }else{
-                adView?.visibility = View.VISIBLE
+                //adView?.visibility = View.VISIBLE
                 val admobInterId = getString(R.string.inter_ad_unit_id)
 
                 MobileAds.initialize(this) {
@@ -153,7 +154,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
             // Show ad if not subscribed
             if (!subscriptionManager.isMonthlySubscriptionActive() &&
                 !subscriptionManager.isYearlySubscriptionActive()) {
-                adView?.visibility = View.VISIBLE
+                //adView?.visibility = View.VISIBLE
             }
             startProgressBar()
         }
@@ -168,7 +169,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
             }
             // Show ad if not subscribed
             if (!subscriptionManager.isLifetimeSubscriptionActive()) {
-                adView?.visibility = View.VISIBLE
+                //adView?.visibility = View.VISIBLE
             }
             startProgressBar()
         }

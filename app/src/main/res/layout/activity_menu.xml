@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#3D5663">
+
+    <include layout="@layout/menu_header" />
+
+    <LinearLayout
+        android:id="@+id/removeAdsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/removeAdsIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_remove_ads" />
+
+        <TextView
+            android:id="@+id/removeAdsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/remove_ads"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:textColor="#FFDB22" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/translateTextToTextLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/translateTextToTextIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/texttotext"
+
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/translateTextToTextTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/translate_text_to_text"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <!-- Uncomment the following LinearLayouts if you want to display information for other menu items -->
+
+    <!--<LinearLayout
+        android:id="@+id/appLanguageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/appLanguageIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_language"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/appLanguageTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="App Language"
+            android:textColor="@color/white" />
+
+    </LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/shareAppLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/shareAppIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_share_gray"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/shareAppTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:text="@string/share_app"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/privacyPolicyLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/privacyPolicyIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_privacy_policy"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/privacyPolicyTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:text="@string/privacy_policy"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rateAppLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/rateAppIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_star"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/rateAppTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:text="@string/rate_app"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/moreAppLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/moreAppIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_more_apps"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/moreAppTextView"
+            android:layout_width="match_parent"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:layout_height="wrap_content"
+            android:text="@string/more_app"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/termsAndConditionsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/termsAndConditionsIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/termsandconditions"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/termsAndConditionsTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Terms and Conditions"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:textSize="18sp"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</LinearLayout>

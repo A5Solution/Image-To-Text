@@ -8,6 +8,7 @@ import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -136,7 +137,7 @@ class TranslationsActivity : AppCompatActivity() {
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
-            SplashActivity.admobInter.showInterAd(this) {
+            SplashActivity.admobInter.showInterAd(this@TranslationsActivity) {
                 SplashActivity.admobInter.loadInterAd(
                     this,
                     getString(R.string.inter_ad_unit_id)
@@ -146,7 +147,7 @@ class TranslationsActivity : AppCompatActivity() {
             adView.loadAd(adRequest)
         }
         back.setOnClickListener {
-            val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+            /*val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
             val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
             val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
@@ -163,7 +164,8 @@ class TranslationsActivity : AppCompatActivity() {
                     finish()
                 }
             }
-
+*/
+            finish()
         }
         loadAvailableLanguages()
 
@@ -209,6 +211,7 @@ class TranslationsActivity : AppCompatActivity() {
 
             override fun afterTextChanged(s: Editable?) {
                 // This method is called to notify you that, somewhere within `s`, the text has been changed.
+                destinationLanguageTv.setText("Translating...")
                 validateData()
             }
         })
@@ -271,6 +274,9 @@ class TranslationsActivity : AppCompatActivity() {
 
             override fun onEvent(eventType: Int, params: Bundle?) {}
         })
+        var isSpeaking = false
+        var spokenText: String? = null
+
         textToSpeech = TextToSpeech(
             applicationContext
         ) { status ->
@@ -285,21 +291,37 @@ class TranslationsActivity : AppCompatActivity() {
                 ).show()
             }
         }
-        val speaker:ImageView=findViewById(R.id.speaker)
+        val speaker: ImageView = findViewById(R.id.speaker)
+
+// Set click listener for the ImageView
         speaker.setOnClickListener {
-            speakText()
+            // Toggle playback state
+            isSpeaking = !isSpeaking
+
+            // Check if text is empty
+            if (destinationLanguageTv.text.isNullOrEmpty()) {
+                Toast.makeText(this, "Translate first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // If speaking, pause; otherwise, speak the text
+            if (isSpeaking) {
+                spokenText = destinationLanguageTv.text.toString()
+                speakText(spokenText!!)
+            } else {
+                stopSpeaking()
+            }
         }
     }
-    private fun speakText() {
-        // Get text from EditText
-        val text = destinationLanguageTv.text.toString()
+    // Function to speak the text
+    private fun speakText(text: String) {
+        // Speak the text
+        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
 
-        if (text.isNotEmpty()) {
-            // Speak the text
-            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-        } else {
-            Toast.makeText(this, "EditText is empty", Toast.LENGTH_SHORT).show()
-        }
+    // Function to stop speaking
+    private fun stopSpeaking() {
+        textToSpeech?.stop()
     }
     private fun identifyLanguage(text: String) {
         val languageIdentifier = LanguageIdentification.getClient()
@@ -339,7 +361,7 @@ class TranslationsActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
-        //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Text copied!", Toast.LENGTH_SHORT).show()
     }
     private fun startSpeechRecognition() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
@@ -380,28 +402,11 @@ class TranslationsActivity : AppCompatActivity() {
     }
     private fun shareImageAndText(text: String) {
         // Create a directory to store text file
-        val directory = File(filesDir, "images")
-        if (!directory.exists()) {
-            directory.mkdirs()
-        }
-
-        // Create a text file and save the text
-        val textFile = File(directory, "text.txt")
-        FileOutputStream(textFile).use { outputStream ->
-            outputStream.write(text.toByteArray())
-            outputStream.flush()
-        }
-
-        // Get the URI of the text file using FileProvider
-        val textUri =
-            FileProvider.getUriForFile(this, "com.example.image_to_text.fileprovider", textFile)
-
         // Create a share intent
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, textUri)
-            type = "text/plain"
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            putExtra(Intent.EXTRA_TEXT, text) // Set the text content
+            type = "text/plain" // Set the MIME type
         }
 
         // Start the activity to share text
@@ -495,4 +500,9 @@ class TranslationsActivity : AppCompatActivity() {
             languageArrayList.add(modelLanguage)
         }
     }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
 }

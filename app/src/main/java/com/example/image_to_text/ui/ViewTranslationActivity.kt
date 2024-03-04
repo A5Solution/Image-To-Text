@@ -79,7 +79,7 @@ class ViewTranslationActivity : AppCompatActivity() {
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
-            SplashActivity.admobInter.showInterAd(this){
+            SplashActivity.admobInter.showInterAd(this@ViewTranslationActivity){
                 SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
             }
             val adRequest = AdRequest.Builder().build()
@@ -88,6 +88,7 @@ class ViewTranslationActivity : AppCompatActivity() {
 
         val filePath = intent.getStringExtra("imageFilePath")
         val yourString = intent.getStringExtra("yourString")
+
         val bitmap = BitmapFactory.decodeFile(filePath)
         back = findViewById(R.id.back)
         imageView = findViewById(R.id.imageView)
@@ -98,7 +99,9 @@ class ViewTranslationActivity : AppCompatActivity() {
         imageView = findViewById(R.id.imageView)
         sourceLanguage = findViewById(R.id.sourceLanguage)
 
-
+        if (filePath.equals(null)){
+            imageView.visibility=View.GONE
+        }
         back.setOnClickListener {
                 finish()
         }
@@ -117,11 +120,18 @@ class ViewTranslationActivity : AppCompatActivity() {
         imageView.setImageBitmap(bitmap)
         sourceLanguage.text = yourString
 
+        var isSpeaking = false
+
+// Define a variable to store the text being spoken
+        var spokenText: String? = null
+
+// Initialize TextToSpeech in your activity
         textToSpeech = TextToSpeech(
             applicationContext
         ) { status ->
             if (status != TextToSpeech.ERROR) {
-                textToSpeech!!.setLanguage(Locale.getDefault())
+                // Set language to Arabic
+                textToSpeech?.language = Locale("ar")
             } else {
                 Toast.makeText(
                     this@ViewTranslationActivity,
@@ -131,41 +141,52 @@ class ViewTranslationActivity : AppCompatActivity() {
             }
         }
 
-        val speaker:ImageView=findViewById(R.id.speaker)
+        val speaker: ImageView = findViewById(R.id.speaker)
+
+// Set click listener for the ImageView
         speaker.setOnClickListener {
-            speakText()
+            // Toggle playback state
+            isSpeaking = !isSpeaking
+
+            // Check if text is empty
+            if (sourceLanguage.text.isNullOrEmpty()) {
+                Toast.makeText(this, "Translate first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // If speaking, pause; otherwise, speak the text
+            if (isSpeaking) {
+                spokenText = sourceLanguage.text.toString()
+                speakText(spokenText!!)
+            } else {
+                stopSpeaking()
+            }
         }
     }
-    private fun speakText() {
-        // Get text from EditText
-        val text = sourceLanguage.text.toString()
+    private fun speakText(text: String) {
+        // Speak the text
+        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
 
-        if (text.isNotEmpty()) {
-            // Speak the text
-            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-        } else {
-            Toast.makeText(this, "EditText is empty", Toast.LENGTH_SHORT).show()
-        }
+    // Function to stop speaking
+    private fun stopSpeaking() {
+        textToSpeech?.stop()
     }
     private fun saveImageAndTextToSQLite(context: Context, bitmap: Bitmap, text: String) {
         val databaseHelper = DatabaseHelper(context)
         val imageData = convertBitmapToByteArray(bitmap)
-        val insertedRowId = databaseHelper.insertData(imageData, text)
+        val insertedRowId = databaseHelper.insertData( text)
         if (insertedRowId != -1L) {
             //Toast.makeText(context, "Image and text saved to SQLite database!", Toast.LENGTH_SHORT).show()
             val handler = Handler(Looper.getMainLooper())
-            val progressBar:ProgressBar
-            progressBar=findViewById(R.id.progressBar)
-            progressBar.visibility=View.VISIBLE
+            val progressBar: ProgressBar
+            progressBar = findViewById(R.id.progressBar)
+            progressBar.visibility = View.VISIBLE
             handler.postDelayed({
-
-                Toast.makeText(this, "Image Saved to Collections!", Toast.LENGTH_SHORT).show()
-                progressBar.visibility=View.GONE
-                finish()
+                Toast.makeText(context, "Image Saved to Collections!", Toast.LENGTH_SHORT).show()
+                progressBar.visibility = View.GONE
             }, 2000)
             //showNotification(context, "Image and text saved", "Image and text saved to SQLite database!")
-
-
         } else {
             //Toast.makeText(context, "Failed to save image and text to SQLite database", Toast.LENGTH_SHORT).show()
         }
@@ -179,7 +200,7 @@ class ViewTranslationActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
-        //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Text copied!", Toast.LENGTH_SHORT).show()
     }
     private fun showNotification(context: Context, title: String, message: String) {
         val notificationManager = NotificationManagerCompat.from(this)
@@ -213,6 +234,7 @@ class ViewTranslationActivity : AppCompatActivity() {
 
 
     private fun shareImageAndText(bitmap: Bitmap, text: String) {
+        // Save the image to a temporary file
         val directory = File(filesDir, "images")
         if (!directory.exists()) {
             directory.mkdirs()
@@ -222,21 +244,21 @@ class ViewTranslationActivity : AppCompatActivity() {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
             it.flush()
         }
-        val textFile = File(directory, "text.txt")
-        FileOutputStream(textFile).use {
-            it.write(text.toByteArray())
-            it.flush()
-        }
+
+        // Create a share intent
         val imageUri = FileProvider.getUriForFile(this, "com.example.image_to_text.fileprovider", imageFile)
-        val textUri = FileProvider.getUriForFile(this, "com.example.image_to_text.fileprovider", textFile)
         val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND_MULTIPLE
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, arrayListOf(imageUri, textUri))
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, imageUri)
+            putExtra(Intent.EXTRA_TEXT, text) // Attach the text as the message body
             type = "image/png"
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+
+        // Launch the share intent
         startActivity(Intent.createChooser(shareIntent, "Share via"))
     }
+
     override fun onPause() {
         super.onPause()
         textToSpeech?.stop()

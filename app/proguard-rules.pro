@@ -19,3 +19,27 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# ML Kit
+-keep class com.google.mlkit.** { *; }
+# Keep specific methods and classes of AndroidHttpClient
+# Exclude android.net.http.AndroidHttpClient completely
+# Ignore the android.net.http package
+-dontwarn android.net.http.**
+
+# Keep specific methods and classes of HttpClient
+-keep class org.apache.http.client.HttpClient {
+    *;
+}
+
+-dontwarn com.google.mlkit.**
+
+# Glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+    **[] $VALUES;
+    public *;
+}
+-dontwarn org.jspecify.nullness.Nullable
+-dontwarn reactor.blockhound.integration.BlockHoundIntegration
+# Other libraries...

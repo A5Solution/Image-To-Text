@@ -7,7 +7,9 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 -->
     <string name="inter_ad_unit_id">ca-app-pub-7055337155394452/3471919069</string>
-    <!--<string name="inter_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>-->
+<!--
+    <string name="inter_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+-->
     <string name="subscription">When subscribe to premium content, your subscription will renew automatically. You\'ll be charged at the start of every billing cycle until you cancel subscription. You can cancel your subscription from Google Play Store.</string>
     <string name="camera_fab">take a photo</string>
     <string name="select_image_for_text_recognition">receipt with shopping items and prices</string>
@@ -15,5 +17,11 @@
     <string name="header_image">logo</string>
     <string name="image_to_text">Image To Text</string>
     <string name="terms_and_conditions"><![CDATA[Terms & Conditions]]></string>
+    <string name="more_app">More App</string>
+    <string name="rate_app">Rate App</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="share_app">Share App</string>
+    <string name="translate_text_to_text">Translate Text To Text</string>
+    <string name="remove_ads">Remove Ads</string>
 
 </resources>

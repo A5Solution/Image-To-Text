@@ -13,8 +13,8 @@ android {
         applicationId = "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "2.2.0"
+        versionCode = 5
+        versionName = "2.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -24,11 +24,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            isShrinkResources=true
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -108,8 +109,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-vision:20.1.3")
     implementation ("com.google.cloud:google-cloud-translate:2.2.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
     implementation ("com.google.mlkit:translate:17.0.2")
     implementation ("com.android.billingclient:billing:6.1.0")
 

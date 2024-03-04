@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 3
         private const val DATABASE_NAME = "ImageToTextDB"
         private const val TABLE_NAME = "ImageTextTable"
         private const val COLUMN_ID = "id"
@@ -27,9 +27,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         onCreate(db)
     }
 
-    fun insertData(imageData: ByteArray, text: String): Long {
+    fun insertData( text: String): Long {
         val contentValues = ContentValues()
-        contentValues.put(COLUMN_IMAGE_DATA, imageData)
+        //contentValues.put(COLUMN_IMAGE_DATA, imageData)
         contentValues.put(COLUMN_TEXT, text)
         val db = this.writableDatabase
         return db.insert(TABLE_NAME, null, contentValues)
@@ -44,10 +44,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             while (cursor.moveToNext()) {
                 val dataMap = mutableMapOf<String, Any>()
                 val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
-                val imageData = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE_DATA))
+                //val imageData = cursor.getBlob(cursor.getColumnIndex(COLUMN_IMAGE_DATA))
                 val text = cursor.getString(cursor.getColumnIndex(COLUMN_TEXT))
                 dataMap["id"] = id
-                dataMap["image_data"] = imageData
+                //dataMap["image_data"] = imageData
                 dataMap["text"] = text
                 dataList.add(dataMap)
             }

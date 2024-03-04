@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -35,6 +36,12 @@ import com.google.android.gms.ads.nativead.NativeAd.OnNativeAdLoadedListener
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.nativead.NativeAdView
 import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class HistoryActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -76,7 +83,7 @@ class HistoryActivity : AppCompatActivity() {
                 finish()
                 //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
             } else {
-                SplashActivity.admobInter.showInterAd(this){
+                SplashActivity.admobInter.showInterAd(this@HistoryActivity){
                     finish()
                     SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
                 }
@@ -111,7 +118,8 @@ class HistoryActivity : AppCompatActivity() {
 
         databaseHelper = DatabaseHelper(this)
         val items = loadSavedItems()
-        recyclerView.adapter = ImageTextAdapter(items.toMutableList(), databaseHelper)
+        recyclerView.adapter = ImageTextAdapter(this,items.toMutableList(), databaseHelper)
+
 
     }
 
@@ -120,15 +128,16 @@ class HistoryActivity : AppCompatActivity() {
         val data = databaseHelper.getAllData()
         for (row in data) {
             try {
-                val imageByteArray = row.get("image_data") as ByteArray
-                val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(imageByteArray))
+                //val imageByteArray = row.get("image_data") as ByteArray
+                //val bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(imageByteArray))
                 val text = row.get("text") as String
-                items.add(ImageTextItem(bitmap, text))
+                items.add(ImageTextItem(text))
             } catch (e: Exception) {
                 Log.e("HistoryActivity", "Error loading data", e)
             }
         }
         return items
+
     }
     private fun loadNativeAd() {
         val adBuilder =
@@ -239,5 +248,24 @@ class HistoryActivity : AppCompatActivity() {
         adView.setNativeAd(nativeAd)
     }
 
-    data class ImageTextItem(val bitmap: Bitmap, val text: String)
+    data class ImageTextItem( val text: String)
+    override fun onBackPressed() {
+
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            // User is subscribed, hide ads
+            finish()
+            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+        } else {
+            SplashActivity.admobInter.showInterAd(this@HistoryActivity){
+                finish()
+                super.onBackPressed()
+                SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
+            }
+        }
+    }
+
 }

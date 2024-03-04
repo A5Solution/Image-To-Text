@@ -10,11 +10,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.speech.tts.TextToSpeech
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -40,6 +43,7 @@ import com.example.image_to_text.R
 import com.example.image_to_text.databinding.ActivityMainBinding
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.activities.CameraActivity
+import com.example.image_to_text.ui.activities.MenuActivity
 import com.example.image_to_text.ui.history.HistoryActivity
 import com.example.image_to_text.ui.inapp.InAppActivity
 import com.example.image_to_text.ui.splashscreen.SplashActivity
@@ -88,10 +92,10 @@ class MainActivity : AppCompatActivity() {
     private var sourceLanguageCode = "en"
     public var count = 0
     private var sourceLanguageTitle = "English"
-    private lateinit var translateBtn: MaterialButton
+    private lateinit var translateBtn: Button
     private lateinit var sourceLanguage: EditText
     private lateinit var progressDialog: Dialog
-    private lateinit var navigationView: NavigationView
+    //private lateinit var navigationView: NavigationView
     private lateinit var copy: ImageView
     private lateinit var share: ImageView
     private lateinit var subscriptionManager: SubscriptionManager
@@ -159,89 +163,95 @@ class MainActivity : AppCompatActivity() {
             yourString?.let { it1 -> shareImageAndText(it1) }
         }
         menu = binding.menu
-        drawerLayout = binding.drawerLayout
+        //drawerLayout = binding.drawerLayout
 
         menu.setOnClickListener {
             // Open the drawer when the menu ImageView is clicked
-            drawerLayout.openDrawer(GravityCompat.START)
+            val intent = Intent(this, MenuActivity::class.java)
+            startActivity(intent)
+            //drawerLayout.openDrawer(GravityCompat.START)
         }
 
         // Add ActionBarDrawerToggle to handle opening and closing the drawer
-        val toggle = ActionBarDrawerToggle(
+        /*val toggle = ActionBarDrawerToggle(
             this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-
-        navigationView = binding.navigationView
-        navigationView.setNavigationItemSelectedListener { menu ->
-            when (menu.itemId) {
-                R.id.menu_remove_ads -> {
-                    val intent = Intent(this, InAppActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                R.id.text_to_text -> {
-                    val intent = Intent(this, TranslationsActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-               /* R.id.menu_app_language -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
-                    val builder = AlertDialog.Builder(this)
-                    builder.setTitle("Coming Soon...")
-                    builder.setMessage("This feature is currently under development. Stay tuned!")
-                    builder.setPositiveButton("OK") { dialog, _ ->
-                        dialog.dismiss()
+*/
+        //navigationView = binding.navigationView
+        /*
+            navigationView.setNavigationItemSelectedListener { menu ->
+                when (menu.itemId) {
+                    R.id.menu_remove_ads -> {
+                        val intent = Intent(this, InAppActivity::class.java)
+                        startActivity(intent)
+                        true
                     }
-                    val dialog = builder.create()
-                    dialog.show()
-                    true
-                }*/
-                R.id.menu_share_app -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
-                    val websiteUri = Uri.parse("https://play.google.com/store/apps/details?id=com.image.to.text.ocrscanner.textconverter.extract.text.translateapp") // Replace "https://example.com" with your website URL
-                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                    startActivity(intent)
-                    true
+                    R.id.text_to_text -> {
+                        val intent = Intent(this, TranslationsActivity::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                   */
+        /* R.id.menu_app_language -> {
+                            // Handle click on the item
+                            // For example, you can perform some action here
+                            val builder = AlertDialog.Builder(this)
+                            builder.setTitle("Coming Soon...")
+                            builder.setMessage("This feature is currently under development. Stay tuned!")
+                            builder.setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            val dialog = builder.create()
+                            dialog.show()
+                            true
+                        }*//*
+
+                        R.id.menu_share_app -> {
+                            // Handle click on the item
+                            // For example, you can perform some action here
+                            val websiteUri = Uri.parse("https://play.google.com/store/apps/details?id=com.image.to.text.ocrscanner.textconverter.extract.text.translateapp") // Replace "https://example.com" with your website URL
+                            val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                            startActivity(intent)
+                            true
+                        }
+                        R.id.menu_privacy_policy -> {
+                            // Handle click on the item
+                            // For example, you can perform some action here
+                            val websiteUri = Uri.parse("https://sites.google.com/view/image-to-text-ocr-extract/home") // Replace "https://example.com" with your website URL
+                            val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                            startActivity(intent)
+                            true
+                        }
+                        R.id.menu_rate_app -> {
+                            // Handle click on the item
+                            // For example, you can perform some action here
+                            val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
+                            val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                            startActivity(intent)
+                            true
+                        }
+                        R.id.menu_more_app -> {
+                            // Handle click on the item
+                            // For example, you can perform some action here
+                            val websiteUri = Uri.parse("https://play.google.com/store/apps/developer?id=Sparx+Developer") // Replace "https://example.com" with your website URL
+                            val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                            startActivity(intent)
+                            true
+                        }
+                        R.id.terms_and_condotions -> {
+                            // Handle click on the item
+                            // For example, you can perform some action here
+                            val websiteUri = Uri.parse("https://sites.google.com/view/terms-and-conditions-image-to-/home") // Replace "https://example.com" with your website URL
+                            val intent = Intent(Intent.ACTION_VIEW, websiteUri)
+                            startActivity(intent)
+                            true
+                        }
+                        else -> false
+                    }
                 }
-                R.id.menu_privacy_policy -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
-                    val websiteUri = Uri.parse("https://sites.google.com/view/image-to-text-ocr-extract/home") // Replace "https://example.com" with your website URL
-                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                    startActivity(intent)
-                    true
-                }
-                R.id.menu_rate_app -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
-                    val websiteUri = Uri.parse("https://example.com") // Replace "https://example.com" with your website URL
-                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                    startActivity(intent)
-                    true
-                }
-                R.id.menu_more_app -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
-                    val websiteUri = Uri.parse("https://play.google.com/store/apps/developer?id=Sparx+Developer") // Replace "https://example.com" with your website URL
-                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                    startActivity(intent)
-                    true
-                }
-                R.id.terms_and_condotions -> {
-                    // Handle click on the item
-                    // For example, you can perform some action here
-                    val websiteUri = Uri.parse("https://sites.google.com/view/terms-and-conditions-image-to-/home") // Replace "https://example.com" with your website URL
-                    val intent = Intent(Intent.ACTION_VIEW, websiteUri)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
+        */
 
         imageViewCamera = binding.imageViewCamera
         imageViewGallery = binding.imageViewGallery
@@ -257,6 +267,12 @@ class MainActivity : AppCompatActivity() {
             count = 2
             ad(count)
         }
+        var isSpeaking = false
+
+// Define a variable to store the text being spoken
+        var spokenText: String? = null
+
+// Initialize TextToSpeech in your activity
         textToSpeech = TextToSpeech(
             applicationContext
         ) { status ->
@@ -271,27 +287,81 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             }
         }
-        val speaker:ImageView=binding.speaker
+        val speaker: ImageView = findViewById(R.id.speaker)
+
         speaker.setOnClickListener {
-            speakText()
+            // Toggle playback state
+            isSpeaking = !isSpeaking
+
+            // Check if text is empty
+            if (sourceLanguage.text.isNullOrEmpty()) {
+                Toast.makeText(this, "Scan Image First!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // If speaking, pause; otherwise, speak the text
+            if (isSpeaking) {
+                spokenText = sourceLanguage.text.toString()
+                speakText(spokenText!!)
+            } else {
+                stopSpeaking()
+            }
         }
 
         val eraseImageView = binding.erase
         eraseImageView.setOnClickListener(){
             binding.sourceLanguage.text.clear()
         }
-
-    }
-    private fun speakText() {
-        // Get text from EditText
-        val text = sourceLanguage.text.toString()
-
-        if (text.isNotEmpty()) {
-            // Speak the text
-            textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
-        } else {
-            Toast.makeText(this, "EditText is empty", Toast.LENGTH_SHORT).show()
+        val editText = binding.sourceLanguage
+        if(binding.sourceLanguage.text.isEmpty()){
+            binding.translateBtn.setBackgroundResource(R.drawable.background_white)
+            binding.translateBtn.isClickable=false
         }
+// Metin değişikliklerini dinlemek için bir TextWatcher oluştur
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Metin değişmeden önceki durumu işlemek için burayı kullanabilirsiniz
+                if (s.isNullOrBlank()) {
+                    // Metin boşsa düğmenin rengini beyaz yap
+                    binding.translateBtn.setBackgroundResource(R.drawable.background_white)
+                    binding.translateBtn.isClickable=false
+                }
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Metin değiştiğinde yapılacak işlemleri burada gerçekleştirin
+                if (s.isNullOrBlank()) {
+                    // Metin boşsa düğmenin rengini beyaz yap
+                    binding.translateBtn.setBackgroundResource(R.drawable.background_white)
+                    binding.translateBtn.isClickable=false
+                }
+
+            }
+            override fun afterTextChanged(s: Editable?) {
+                // Metin değiştikten sonra yapılacak işlemleri burada gerçekleştirin
+                if (s.isNullOrBlank()) {
+                    // Metin boşsa düğmenin arka planını beyaz yap
+                    binding.translateBtn.setBackgroundResource(R.drawable.background_white)
+                    binding.translateBtn.isClickable = false
+                } else {
+                    // Metin doluysa düğmenin arka planını drawable'a ayarla ve tıklanabilirliği etkinleştir
+                    binding.translateBtn.setBackgroundResource(R.drawable.background_curve)
+                    binding.translateBtn.isClickable = true
+                }
+            }
+        }
+
+// EditText'e TextWatcher'ı ekleyin
+        editText.addTextChangedListener(textWatcher)
+    }
+    private fun speakText(text: String) {
+        // Speak the text
+        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    // Function to stop speaking
+    private fun stopSpeaking() {
+        textToSpeech?.stop()
     }
     private fun hideAds() {
         adView.visibility = View.GONE
@@ -320,7 +390,7 @@ class MainActivity : AppCompatActivity() {
                 openGallery()
             }
         } else {
-            SplashActivity.admobInter.showInterAd(this) {
+            SplashActivity.admobInter.showInterAd(this@MainActivity) {
                 SplashActivity.admobInter.loadInterAd(
                     this,
                     getString(R.string.inter_ad_unit_id)
@@ -370,7 +440,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, open camera
-                openCamera()
+                //openCamera()
             } else {
                 // Permission denied, inform user
                 Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
@@ -563,6 +633,7 @@ class MainActivity : AppCompatActivity() {
     private fun startTranslations(sourceLanguageText: String) {
         progressDialog = Dialog(this)
         progressDialog.setCanceledOnTouchOutside(false)
+        //progressDialog.setTitle("Translating...")
         progressDialog.setContentView(R.layout.custom_dialog)
         progressDialog.show()
 
@@ -645,6 +716,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         // Shutdown Text-to-Speech engine when activity is destroyed to release resources
+
         textToSpeech?.stop()
         textToSpeech?.shutdown()
     }
