@@ -42,7 +42,6 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-
         scanImageView = findViewById(R.id.scan)
         scanLine = findViewById(R.id.linescan)
 

@@ -721,31 +721,31 @@ class MainActivity : AppCompatActivity() {
         textToSpeech?.shutdown()
     }
     @SuppressLint("MissingSuperCall")
-    override fun onBackPressed() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_exit, null)
-        val dialogMessage = dialogView.findViewById<TextView>(R.id.dialog_message)
-        val btnExit = dialogView.findViewById<TextView>(R.id.btn_exit)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        override fun onBackPressed() {
+            val dialogView = layoutInflater.inflate(R.layout.dialog_exit, null)
+            val dialogMessage = dialogView.findViewById<TextView>(R.id.dialog_message)
+            val btnExit = dialogView.findViewById<TextView>(R.id.btn_exit)
+            val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
 
-        val dialogBuilder = AlertDialog.Builder(this, R.style.CustomAlertDialogStyle)
-            .setView(dialogView)
-            .setCancelable(false)
+            val dialogBuilder = AlertDialog.Builder(this, R.style.CustomAlertDialogStyle)
+                .setView(dialogView)
+                .setCancelable(false)
 
-        val alertDialog = dialogBuilder.create()
+            val alertDialog = dialogBuilder.create()
 
-        btnExit.setOnClickListener {
-            // Exit the app
-            finish()
-            alertDialog.dismiss()
+            btnExit.setOnClickListener {
+                // Exit the app
+                finish()
+                alertDialog.dismiss()
+            }
+
+            btnCancel.setOnClickListener {
+                // Dismiss the dialog
+                alertDialog.dismiss()
+            }
+
+            alertDialog.show()
         }
-
-        btnCancel.setOnClickListener {
-            // Dismiss the dialog
-            alertDialog.dismiss()
-        }
-
-        alertDialog.show()
-    }
 
 
 }
