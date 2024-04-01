@@ -5,24 +5,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationSet
-import android.view.animation.AnimationUtils
-import android.view.animation.TranslateAnimation
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
+import androidx.lifecycle.lifecycleScope
 import com.android.billingclient.api.*
 import com.example.image_to_text.R
 import com.example.image_to_text.ui.MainActivity
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.android.billingclient.api.Purchase
-import com.example.image_to_text.ui.AdmobInter
+import com.example.image_to_text.ui.Utils.Companion.logAnalytic
+import com.example.image_to_text.ui.ads.AdmobInter
+import com.example.image_to_text.ui.ads.AdmobNative
+import com.example.image_to_text.ui.ads.AdmobOpen
 import com.google.android.gms.ads.MobileAds
+import kotlinx.coroutines.launch
 
 class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
@@ -34,20 +31,62 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private var isAnimating = false
     private lateinit var scanImageView: ImageView
     private lateinit var scanLine: ImageView
+    private var isAdLoaded = false
 
     companion object {
         val admobInter = AdmobInter()
+        var admobInterId: String = ""
+        var isPermissionPopupVisible: Boolean = true
+        lateinit var admobNativeId: String
+        val admobOpen = AdmobOpen()
+        var admobOpenId = ""
+        lateinit var admobNative: AdmobNative
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+        admobNative = AdmobNative()
+        admobNativeId = getString(R.string.admob_native_id)
+        admobNative.loadNativeAd1(this, admobNativeId)
+
         scanImageView = findViewById(R.id.scan)
         scanLine = findViewById(R.id.linescan)
-
+        admobOpenId = getString(R.string.admob_open_id)
         subscriptionManager = SubscriptionManager(this)
 
+        MobileAds.initialize(this) {
+            logAnalytic("Splash ads initialized")
+            lifecycleScope.launch {
+                val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
+                if (isLifetimeSubscriptionActive) {
+                    startProgressBar()
+                } else {
+                    admobOpen.loadOpenAd(this@SplashActivity) { loaded ->
+                        isAdLoaded = loaded
+                        if (!loaded) {
+                            logAnalytic("Splash open app Ad not loaded")
+                            logAnalytic("Moved Next from splash")
+                            startProgressBar()
+                            return@loadOpenAd
+                        }
+
+                        logAnalytic("Splash open app Ad loaded")
+                        admobOpen.showOpenAd(this@SplashActivity) {
+                            logAnalytic("Splash open app Ad showed")
+                            startProgressBar()
+                        }
+                    }
+                }
+            }
+        }
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+        if (isLifetimeSubscriptionActive) {
+            hideAds()
+        } else {
+            showAds()
+        }
         // Initialize BillingClient
         billingClient = BillingClient.newBuilder(this)
             .setListener(this)
@@ -62,12 +101,10 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
                     queryPurchases()
                     lifetime()
                 } else {
-                    startMainActivity()
                 }
             }
 
             override fun onBillingServiceDisconnected() {
-                startMainActivity()
             }
         })
 
@@ -92,9 +129,18 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 startProgressBar()
             }
         }*/
-        startProgressBar()
+    }
+    private fun hideAds() {
+
     }
 
+    private fun showAds() {
+        admobInterId = getString(R.string.admob_inter_id)
+        admobNativeId = getString(R.string.admob_native_id)
+        MobileAds.initialize(this) {
+            admobInter.loadInterAd(this, admobInterId)
+        }
+    }
     private fun startProgressBar() {
         // Start the progress bar animation
         val animationDuration = SPLASH_SCREEN_DURATION.toLong()
@@ -132,7 +178,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 startProgressBar()
             }else{
                 //adView?.visibility = View.VISIBLE
-                val admobInterId = getString(R.string.inter_ad_unit_id)
+                val admobInterId = getString(R.string.admob_inter_id)
 
                 MobileAds.initialize(this) {
                     admobInter.loadInterAd(this, admobInterId)
@@ -155,7 +201,7 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
                 !subscriptionManager.isYearlySubscriptionActive()) {
                 //adView?.visibility = View.VISIBLE
             }
-            startProgressBar()
+
         }
     }
     private fun lifetime() {
@@ -170,7 +216,6 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
             if (!subscriptionManager.isLifetimeSubscriptionActive()) {
                 //adView?.visibility = View.VISIBLE
             }
-            startProgressBar()
         }
     }
 

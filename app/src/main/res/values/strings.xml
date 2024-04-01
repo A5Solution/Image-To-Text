@@ -2,10 +2,8 @@
     <string name="app_name">Image-To-Text</string>
     <string name="navigation_drawer_open">Open Drawer</string>
     <string name="navigation_drawer_close">Close Drawer</string>
-<!--
     <string name="banner_ad_unit_id">ca-app-pub-7055337155394452/4579603713</string>
--->
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <!--<string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>-->
 <!--
     <string name="inter_ad_unit_id">ca-app-pub-7055337155394452/3471919069</string>
 -->
@@ -23,5 +21,6 @@
     <string name="share_app">Share App</string>
     <string name="translate_text_to_text">Translate Text To Text</string>
     <string name="remove_ads">Remove Ads</string>
+    <string name="ad_loading">ad loading</string>
 
 </resources>

@@ -266,9 +266,13 @@
 
                                 <ImageView
                                     android:id="@+id/erase"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:padding="5dp"
+                                    android:tint="@color/white"
                                     android:layout_marginTop="15dp"
+                                    android:foreground="@drawable/ripple_effect"
+                                    android:background="@drawable/background_white"
                                     android:layout_marginEnd="20dp"
                                     android:src="@drawable/cross" />
                             </LinearLayout>
@@ -339,6 +343,7 @@
                                     android:id="@+id/speaker"
                                     android:layout_width="30dp"
                                     android:layout_height="30dp"
+                                    android:foreground="@drawable/ripple_effect"
                                     android:src="@drawable/ic_speaker" />
                             </LinearLayout>
 
@@ -387,19 +392,31 @@
         </LinearLayout>
 
 
-        <LinearLayout
+        <FrameLayout
+            android:id="@+id/nativeAdContainer"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:background="@color/gray"
-            android:gravity="center">
-                <com.google.android.gms.ads.AdView
-                    android:id="@+id/adView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    ads:adSize="BANNER"
-                    ads:adUnitId="@string/banner_ad_unit_id" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:background="@color/appColor"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:foregroundGravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/ad_loading"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5" />
+        </FrameLayout>
     </LinearLayout>
     <ProgressBar
         android:layout_width="match_parent"

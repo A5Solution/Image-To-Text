@@ -8,205 +8,244 @@
 
     <include layout="@layout/menu_header" />
 
+
     <LinearLayout
-        android:id="@+id/removeAdsLayout"
+        android:id="@+id/removeAdsTextView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:foreground="@drawable/ripple_effect"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <LinearLayout
 
-        <ImageView
-            android:id="@+id/removeAdsIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_remove_ads" />
-
-        <TextView
-            android:id="@+id/removeAdsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/remove_ads"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:textColor="#FFDB22" />
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/removeAdsIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_remove_ads" />
 
-    <LinearLayout
-        android:id="@+id/translateTextToTextLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+            <TextView
 
-        <ImageView
-            android:id="@+id/translateTextToTextIcon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/texttotext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/remove_ads"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:textColor="#FFDB22" />
 
-            app:tint="@color/white" />
+        </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/translateTextToTextTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/translate_text_to_text"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:textColor="@color/white" />
+            android:foreground="@drawable/ripple_effect"
+            android:padding="16dp">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/translateTextToTextIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/texttotext"
 
-    <!-- Uncomment the following LinearLayouts if you want to display information for other menu items -->
+                app:tint="@color/white" />
 
-    <!--<LinearLayout
-        android:id="@+id/appLanguageLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+            <TextView
 
-        <ImageView
-            android:id="@+id/appLanguageIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_language"
-            app:tint="@color/white" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/translate_text_to_text"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:textColor="@color/white" />
 
-        <TextView
-            android:id="@+id/appLanguageTextView"
+        </LinearLayout>
+
+        <!-- Uncomment the following LinearLayouts if you want to display information for other menu items -->
+
+        <!--<LinearLayout
+            android:id="@+id/appLanguageLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="App Language"
-            android:textColor="@color/white" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    </LinearLayout>-->
+            <ImageView
+                android:id="@+id/appLanguageIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_language"
+                app:tint="@color/white" />
 
-    <LinearLayout
-        android:id="@+id/shareAppLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+            <TextView
+                android:id="@+id/appLanguageTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="App Language"
+                android:textColor="@color/white" />
 
-        <ImageView
-            android:id="@+id/shareAppIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_share_gray"
-            app:tint="@color/white" />
+        </LinearLayout>-->
 
-        <TextView
+        <LinearLayout
             android:id="@+id/shareAppTextView"
+            android:foreground="@drawable/ripple_effect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:text="@string/share_app"
-            android:textColor="@color/white" />
+            android:padding="16dp">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/shareAppIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_share_gray"
+                app:tint="@color/white" />
 
-    <LinearLayout
-        android:id="@+id/privacyPolicyLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+            <TextView
 
-        <ImageView
-            android:id="@+id/privacyPolicyIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_privacy_policy"
-            app:tint="@color/white" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:text="@string/share_app"
+                android:textColor="@color/white" />
 
-        <TextView
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/privacyPolicyTextView"
+            android:foreground="@drawable/ripple_effect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:text="@string/privacy_policy"
-            android:textColor="@color/white" />
+            android:padding="16dp">
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/privacyPolicyIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_privacy_policy"
+                app:tint="@color/white" />
 
-    <LinearLayout
-        android:id="@+id/rateAppLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+            <TextView
 
-        <ImageView
-            android:id="@+id/rateAppIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_star"
-            app:tint="@color/white" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:text="@string/privacy_policy"
+                android:textColor="@color/white" />
 
-        <TextView
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/rateAppTextView"
+            android:foreground="@drawable/ripple_effect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:text="@string/rate_app"
-            android:textColor="@color/white" />
+            android:padding="16dp">
 
+            <ImageView
+                android:id="@+id/rateAppIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_star"
+                app:tint="@color/white" />
+
+            <TextView
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:text="@string/rate_app"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/moreAppTextView"
+            android:foreground="@drawable/ripple_effect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/moreAppIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more_apps"
+                app:tint="@color/white" />
+
+            <TextView
+
+                android:layout_width="match_parent"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:layout_height="wrap_content"
+                android:text="@string/more_app"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/termsAndConditionsTextView"
+            android:foreground="@drawable/ripple_effect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/termsAndConditionsIcon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/termsandconditions"
+                app:tint="@color/white" />
+
+            <TextView
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Terms and Conditions"
+                android:textStyle="bold"
+                android:layout_marginStart="20dp"
+                android:textSize="18sp"
+                android:textColor="@color/white" />
+
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/moreAppLayout"
+    <FrameLayout
+        android:id="@+id/nativeAdContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:layout_marginBottom="5dp"
+        android:background="@color/appColor"
+        android:foregroundGravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/moreAppIcon"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_more_apps"
-            app:tint="@color/white" />
-
-        <TextView
-            android:id="@+id/moreAppTextView"
-            android:layout_width="match_parent"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:layout_height="wrap_content"
-            android:text="@string/more_app"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/termsAndConditionsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
-
-        <ImageView
-            android:id="@+id/termsAndConditionsIcon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/termsandconditions"
-            app:tint="@color/white" />
-
-        <TextView
-            android:id="@+id/termsAndConditionsTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Terms and Conditions"
-            android:textStyle="bold"
-            android:layout_marginStart="20dp"
-            android:textSize="18sp"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
-
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/ad_loading"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
+    </FrameLayout>
 </LinearLayout>

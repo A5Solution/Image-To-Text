@@ -19,7 +19,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.ApplicationClass
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
+import com.example.image_to_text.ui.ads.AdmobInter
 import com.example.image_to_text.ui.database.DatabaseHelper
 import com.example.image_to_text.ui.splashscreen.SplashActivity
 import com.google.android.gms.ads.AdListener
@@ -49,7 +51,7 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var delete: ImageView
     private lateinit var databaseHelper: DatabaseHelper
     private var mNativeAd: NativeAd? = null
-    private var timerTextView: TextView? = null
+    private lateinit var navContainer: FrameLayout
     private lateinit var subscriptionManager: SubscriptionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,20 +59,20 @@ class HistoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_history)
         subscriptionManager = SubscriptionManager(this)
 
+        navContainer = findViewById(R.id.nativeAdContainer)
 
-        val adView: AdView = findViewById(R.id.adView)
         val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
         val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
         val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
         if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
             // User is subscribed, hide ads
-            adView?.visibility= View.GONE
+            navContainer.visibility=View.GONE
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
-            val adRequest = AdRequest.Builder().build()
-            adView.loadAd(adRequest)
+            SplashActivity.admobNative.showNative(this,navContainer , SplashActivity.admobNativeId)
+
         }
         //loadNativeAd()
         recyclerView = findViewById(R.id.recyclerView)
@@ -78,17 +80,7 @@ class HistoryActivity : AppCompatActivity() {
         delete = findViewById(R.id.delete)
 
         back.setOnClickListener {
-            if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
-                // User is subscribed, hide ads
-                finish()
-                //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
-            } else {
-                SplashActivity.admobInter.showInterAd(this@HistoryActivity){
-                    finish()
-                    SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
-                }
-            }
-
+            finish()
         }
 
         delete.setOnClickListener {
@@ -249,23 +241,10 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     data class ImageTextItem( val text: String)
-    override fun onBackPressed() {
 
-        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
-        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
-        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
-
-        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
-            // User is subscribed, hide ads
-            finish()
-            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
-        } else {
-            SplashActivity.admobInter.showInterAd(this@HistoryActivity){
-                finish()
-                super.onBackPressed()
-                SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        ApplicationClass.counter++
     }
 
 }

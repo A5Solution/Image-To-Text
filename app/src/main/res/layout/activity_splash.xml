@@ -24,30 +24,6 @@
     <!-- Text: Image To Text -->
 
     <!-- Progress bar -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
-        android:layout_width="wrap_content"
-        android:layout_height="105dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        ads:layout_constraintBottom_toBottomOf="parent"
-        ads:layout_constraintEnd_toEndOf="parent"
-        ads:layout_constraintStart_toStartOf="parent"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="4dp"
-        android:visibility="gone">
-
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/banner_ad"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
-            ads:adSize="LARGE_BANNER"
-            ads:adUnitId="@string/banner_ad_unit_id" />
-    </androidx.cardview.widget.CardView>
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="wrap_content"
@@ -151,10 +127,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/imagetotext"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="32dp"
         android:max="100"
         android:progress="0"
-        ads:layout_constraintBottom_toTopOf="@+id/cardView"
+        ads:layout_constraintBottom_toBottomOf="parent"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toStartOf="parent"
         ads:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
@@ -172,6 +147,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="This action may contains Ads"
+        ads:layout_constraintBottom_toBottomOf="parent"
         ads:layout_constraintEnd_toEndOf="parent"
         ads:layout_constraintStart_toStartOf="parent"
         ads:layout_constraintTop_toBottomOf="@+id/progress_bar" />

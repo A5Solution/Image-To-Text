@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.billingclient.api.*
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.ApplicationClass
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 
 class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
@@ -190,6 +191,7 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     override fun onResume() {
         super.onResume()
+        ApplicationClass.counter++
         Log.d("InAppActivity", "onResume called")
 
         // Yahan par additional code bhi add kar sakte hain, jaise MainActivity pe navigate karne ki check
@@ -197,4 +199,5 @@ class InAppActivity : AppCompatActivity(), PurchasesUpdatedListener {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
 }

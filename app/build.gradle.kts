@@ -13,8 +13,8 @@ android {
         applicationId = "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 5
-        versionName = "2.2.1"
+        versionCode = 6
+        versionName = "2.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,8 +29,25 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            isShrinkResources=true
-            signingConfig = signingConfigs.getByName("debug")
+            resValue("string", "admob_open_id", "ca-app-pub-3940256099942544/9257395921")
+            resValue("string", "admob_app_id", "ca-app-pub-4219822921938965~6037175836")
+            resValue("string", "admob_banner_id", "ca-app-pub-7055337155394452/4579603713")
+            resValue("string", "admob_native_id", "ca-app-pub-7055337155394452/3262799379")
+            resValue("string", "admob_inter_id", "ca-app-pub-7055337155394452/3471919069")
+
+        }
+        debug {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            resValue("string", "admob_open_id", "ca-app-pub-3940256099942544/9257395921")
+            resValue("string", "admob_app_id", "ca-app-pub-4219822921938965~6037175836")
+            resValue("string", "admob_banner_id", "ca-app-pub-3940256099942544/6300978111")
+            resValue("string", "admob_native_id", "ca-app-pub-3940256099942544/2247696110")
+            resValue("string", "admob_inter_id", "ca-app-pub-3940256099942544/1033173712")
+            
         }
     }
 
@@ -89,6 +106,8 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.1")
     implementation ("androidx.camera:camera-camera2:1.1.0")
     implementation("com.google.mlkit:language-id-common:16.1.0")
+    implementation("androidx.lifecycle:lifecycle-process:2.7.0")
+    implementation("com.google.android.gms:play-services-measurement-api:21.6.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -41,9 +41,13 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.image_to_text.R
 import com.example.image_to_text.databinding.ActivityMainBinding
+import com.example.image_to_text.ui.ApplicationClass.Companion.counter
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
+import com.example.image_to_text.ui.Utils.Companion.logAnalytic
 import com.example.image_to_text.ui.activities.CameraActivity
 import com.example.image_to_text.ui.activities.MenuActivity
+import com.example.image_to_text.ui.ads.AdmobInter
+import com.example.image_to_text.ui.ads.AdmobInter.Companion.isClicked
 import com.example.image_to_text.ui.history.HistoryActivity
 import com.example.image_to_text.ui.inapp.InAppActivity
 import com.example.image_to_text.ui.splashscreen.SplashActivity
@@ -99,7 +103,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var copy: ImageView
     private lateinit var share: ImageView
     private lateinit var subscriptionManager: SubscriptionManager
-    private lateinit var adView: AdView
     private var textToSpeech: TextToSpeech? = null
 
     companion object {
@@ -112,18 +115,6 @@ class MainActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        checkPermissions()
-
-        val imageFilePath = intent.getStringExtra("imageFilePath")
-        if (imageFilePath != null) {
-            val bitmap = BitmapFactory.decodeFile(imageFilePath)
-            binding.imageViewPhoto.setImageBitmap(bitmap)
-            val string = intent.getStringExtra("string")
-            binding.sourceLanguage.setText(string)
-        }
-
-        adView = binding.adView
         subscriptionManager = SubscriptionManager(this)
 
         // Check subscription status
@@ -136,8 +127,20 @@ class MainActivity : AppCompatActivity() {
             hideAds()
         } else {
             // User is not subscribed, show ads
+            SplashActivity.admobNative.showNative(this, binding.nativeAdContainer, SplashActivity.admobNativeId)
             showAds()
         }
+
+        checkPermissions()
+
+        val imageFilePath = intent.getStringExtra("imageFilePath")
+        if (imageFilePath != null) {
+            val bitmap = BitmapFactory.decodeFile(imageFilePath)
+            binding.imageViewPhoto.setImageBitmap(bitmap)
+            val string = intent.getStringExtra("string")
+            binding.sourceLanguage.setText(string)
+        }
+
         loadAvailableLanguages()
         destinationLanguageChooseBtn = binding.destinationLanguageChooseBtn
         destinationLanguageChooseBtn.setOnClickListener {
@@ -145,12 +148,52 @@ class MainActivity : AppCompatActivity() {
         }
         translateBtn = binding.translateBtn
         translateBtn.setOnClickListener {
-            validateData()
+            val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+            if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+                validateData()
+            } else {
+
+                SplashActivity.admobInter.showInterAd(this) {
+                    SplashActivity.admobInter.loadInterAd(
+                        this,
+                        SplashActivity.admobInterId
+                    )
+                    validateData()
+                }
+                if(isClicked){
+                    validateData()
+                }
+                // Show Interstitial ad
+
+            }
+
         }
         history = binding.history
         history.setOnClickListener {
-            val intent = Intent(this, HistoryActivity::class.java)
-            startActivity(intent)
+            val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+            if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+                val intent = Intent(this, HistoryActivity::class.java)
+                startActivity(intent)
+            } else {
+
+                SplashActivity.admobInter.showInterAd(this) {
+                    SplashActivity.admobInter.loadInterAd(
+                        this,
+                        SplashActivity.admobInterId
+                    )
+                    val intent = Intent(this, HistoryActivity::class.java)
+                    startActivity(intent)
+                }
+                if(isClicked){
+                    val intent = Intent(this, HistoryActivity::class.java)
+                    startActivity(intent)
+                }
+                // Show Interstitial ad
+
+            }
+
         }
         sourceLanguage = binding.sourceLanguage
         val yourString = sourceLanguage.text.toString()
@@ -364,13 +407,11 @@ class MainActivity : AppCompatActivity() {
         textToSpeech?.stop()
     }
     private fun hideAds() {
-        adView.visibility = View.GONE
+
     }
 
     private fun showAds() {
-        adView.visibility = View.VISIBLE
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
+
     }
     private fun ad(count: Int) {
 
@@ -393,8 +434,39 @@ class MainActivity : AppCompatActivity() {
             SplashActivity.admobInter.showInterAd(this@MainActivity) {
                 SplashActivity.admobInter.loadInterAd(
                     this,
-                    getString(R.string.inter_ad_unit_id)
+                    SplashActivity.admobInterId
                 )
+                if(AdmobInter.isClicked)
+                {
+                    if (count == 1) {
+                        if (ContextCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            // Permission already granted, open camera
+                            val intent = Intent(this, CameraActivity::class.java)
+                            startActivity(intent)
+                            binding.progressBar.visibility=View.GONE
+                            finish()
+                        } else {
+                            // Request permission if not granted
+                            ActivityCompat.requestPermissions(
+                                this,
+                                arrayOf(Manifest.permission.CAMERA),
+                                PERMISSION_REQUEST_CODE
+                            )
+                        }
+
+                    } else if (count == 2) {
+                        binding.progressBar.visibility=View.GONE
+                        openGallery()
+                    }
+                }
+
+            }
+            if(isClicked)
+            {
                 if (count == 1) {
                     if (ContextCompat.checkSelfPermission(
                             this,
@@ -501,11 +573,6 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         textToSpeech?.stop()
     }
-    override fun onResume() {
-        super.onResume()
-        // Observe the textBlocks LiveData
-    }
-
 
     private fun openCamera() {
         val dialog = (this as? AppCompatActivity)?.supportFragmentManager?.findFragmentByTag("loading_dialog")
@@ -622,7 +689,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun validateData() {
+    public fun validateData() {
         val sourceLanguageText = sourceLanguage.text.toString().trim()
         if (sourceLanguageText.isEmpty()) {
             Toast.makeText(this, "Enter text to translate...", Toast.LENGTH_SHORT).show()
@@ -747,5 +814,8 @@ class MainActivity : AppCompatActivity() {
             alertDialog.show()
         }
 
-
+    override fun onResume() {
+        super.onResume()
+        counter++
+    }
 }

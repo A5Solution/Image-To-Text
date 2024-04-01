@@ -21,6 +21,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:padding="15dp"
+            android:foreground="@drawable/ripple_effect"
             android:src="@drawable/baseline_arrow_back_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,9 +46,10 @@
         <!-- History Icon -->
         <ImageView
             android:id="@+id/delete"
-            android:layout_width="70dp"
+            android:layout_width="40dp"
             android:layout_height="40dp"
             android:padding="10dp"
+            android:foreground="@drawable/ripple_effect"
             android:src="@drawable/delete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,32 +61,38 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
         android:layout_marginTop="60dp"
-        android:layout_marginBottom="60dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/nativeAdContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout5"
+    <FrameLayout
+        android:id="@+id/nativeAdContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="5dp"
+        android:background="@color/appColor"
+        android:foregroundGravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/gray"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="0dp"
-        android:gravity="center">
+        app:layout_constraintStart_toStartOf="parent">
 
-            <com.google.android.gms.ads.AdView
-                android:id="@+id/adView"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                app:adSize="BANNER"
-                app:adUnitId="@string/banner_ad_unit_id" />
-
-    </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/ad_loading"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
+    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

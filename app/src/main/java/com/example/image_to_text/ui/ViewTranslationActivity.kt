@@ -29,6 +29,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.example.image_to_text.R
+import com.example.image_to_text.databinding.ActivityViewTranslationBinding
 import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.database.DatabaseHelper
 import com.example.image_to_text.ui.splashscreen.SplashActivity
@@ -60,30 +61,26 @@ class ViewTranslationActivity : AppCompatActivity() {
     private var mInterstitialAd: InterstitialAd? = null
     private lateinit var subscriptionManager: SubscriptionManager
     private var textToSpeech: TextToSpeech? = null
+    private lateinit var binding: ActivityViewTranslationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_view_translation)
-
-
+        binding = ActivityViewTranslationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         subscriptionManager = SubscriptionManager(this)
 
-        val adView: AdView = findViewById(R.id.adView)
         val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
         val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
         val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
         if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
             // User is subscribed, hide ads
-            adView?.visibility= View.GONE
+            binding.nativeAdContainer.visibility=View.GONE
             //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
         } else {
             // User is not subscribed, show ads
-            SplashActivity.admobInter.showInterAd(this@ViewTranslationActivity){
-                SplashActivity.admobInter.loadInterAd(this, getString(R.string.inter_ad_unit_id))
-            }
-            val adRequest = AdRequest.Builder().build()
-            adView.loadAd(adRequest)
+            SplashActivity.admobNative.showNative(this,binding.nativeAdContainer , SplashActivity.admobNativeId)
+
         }
 
         val filePath = intent.getStringExtra("imageFilePath")
@@ -262,5 +259,10 @@ class ViewTranslationActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         textToSpeech?.stop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ApplicationClass.counter++
     }
 }

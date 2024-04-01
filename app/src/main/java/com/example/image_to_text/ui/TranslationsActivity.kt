@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
@@ -86,6 +87,7 @@ class TranslationsActivity : AppCompatActivity() {
     private lateinit var share: ImageView
     private lateinit var copy1: ImageView
     private lateinit var share1: ImageView
+    private lateinit var navContainer: FrameLayout
     private lateinit var subscriptionManager: SubscriptionManager
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var micImageView: ImageView
@@ -99,7 +101,22 @@ class TranslationsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_translations)
+        navContainer = findViewById(R.id.nativeAdContainer)
         subscriptionManager = SubscriptionManager(this)
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
+
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            // User is subscribed, hide ads
+            navContainer.visibility=View.GONE
+            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+        } else {
+            SplashActivity.admobNative.showNative(this,navContainer , SplashActivity.admobNativeId)
+        }
+
+
+
         micImageView = findViewById(R.id.mic)
         sourceLanguage = findViewById(R.id.sourceLanguage)
         back = findViewById(R.id.back)
@@ -113,39 +130,12 @@ class TranslationsActivity : AppCompatActivity() {
         progressDialog = ProgressDialog(this)
         progressDialog.setTitle("Please Wait")
         progressDialog.setCanceledOnTouchOutside(false)
-
-        SplashActivity.admobInter.showInterAd(this@TranslationsActivity) {
-            SplashActivity.admobInter.loadInterAd(
-                this@TranslationsActivity,
-                getString(R.string.inter_ad_unit_id)
-            )
-
-        }
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
         if (!isSpeechRecognitionPermissionGranted()) {
             requestSpeechRecognitionPermission()
         }
 
-        val adView: AdView = findViewById(R.id.adView)
-        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
-        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
-        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
-        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
-            // User is subscribed, hide ads
-            adView?.visibility = View.GONE
-            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
-        } else {
-            // User is not subscribed, show ads
-            SplashActivity.admobInter.showInterAd(this@TranslationsActivity) {
-                SplashActivity.admobInter.loadInterAd(
-                    this,
-                    getString(R.string.inter_ad_unit_id)
-                )
-            }
-            val adRequest = AdRequest.Builder().build()
-            adView.loadAd(adRequest)
-        }
         back.setOnClickListener {
             /*val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
             val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
@@ -503,6 +493,11 @@ class TranslationsActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ApplicationClass.counter++
     }
 
 }

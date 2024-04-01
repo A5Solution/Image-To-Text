@@ -13,20 +13,37 @@ import android.view.Window
 import android.widget.ImageView
 import com.example.image_to_text.R
 import com.example.image_to_text.databinding.ActivityMenuBinding
+import com.example.image_to_text.ui.ApplicationClass
+import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.TranslationsActivity
+import com.example.image_to_text.ui.ads.AdmobInter
 import com.example.image_to_text.ui.inapp.InAppActivity
+import com.example.image_to_text.ui.splashscreen.SplashActivity
 
 class MenuActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMenuBinding
     private lateinit var progressDialog: Dialog
-
+    private lateinit var subscriptionManager: SubscriptionManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        subscriptionManager = SubscriptionManager(this)
 
+        val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
+        val isYearlySubscriptionActive = subscriptionManager.isYearlySubscriptionActive()
+        val isLifetimeSubscriptionActive = subscriptionManager.isLifetimeSubscriptionActive()
 
+        if (isMonthlySubscriptionActive || isYearlySubscriptionActive || isLifetimeSubscriptionActive) {
+            // User is subscribed, hide ads
+            binding.nativeAdContainer.visibility=View.GONE
+            //Toast.makeText(this, "Thank you for subscribing!", Toast.LENGTH_SHORT).show()
+        } else {
+            // User is not subscribed, show ads
+            SplashActivity.admobNative.showNative(this,binding.nativeAdContainer , SplashActivity.admobNativeId)
+
+        }
         // Set OnClickListener on the close ImageView
         val closeImageView: ImageView = findViewById(R.id.close)
 
@@ -41,7 +58,17 @@ class MenuActivity : AppCompatActivity() {
         }
 
         binding.translateTextToTextTextView.setOnClickListener {
-            startActivity(Intent(this, TranslationsActivity::class.java))
+            SplashActivity.admobInter.showInterAd(this@MenuActivity) {
+                SplashActivity.admobInter.loadInterAd(
+                    this,
+                    SplashActivity.admobInterId
+                )
+                startActivity(Intent(this, TranslationsActivity::class.java))
+            }
+            if(AdmobInter.isClicked){
+                startActivity(Intent(this, TranslationsActivity::class.java))
+            }
+
         }
 
         // Uncomment the lines below to add click listeners for other menu items
@@ -108,5 +135,10 @@ class MenuActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW, websiteUri)
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ApplicationClass.counter++
     }
 }

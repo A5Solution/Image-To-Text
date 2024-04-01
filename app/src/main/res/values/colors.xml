@@ -10,4 +10,6 @@
     <color name="selectedItemBackground">#A7B1E8</color> <!-- This is a gold color, you can choose any color you prefer -->
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#D1CDCD</color>
+    <color name="appColor">#476473</color>
+
 </resources>
