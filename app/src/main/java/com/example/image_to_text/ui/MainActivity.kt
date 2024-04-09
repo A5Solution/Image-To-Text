@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
@@ -500,7 +501,7 @@ class MainActivity : AppCompatActivity() {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
-        //Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Text copied!", Toast.LENGTH_SHORT).show()
     }
 
     override fun onRequestPermissionsResult(
@@ -787,32 +788,47 @@ class MainActivity : AppCompatActivity() {
         textToSpeech?.stop()
         textToSpeech?.shutdown()
     }
+    @Deprecated("Deprecated in Java")
     @SuppressLint("MissingSuperCall")
-        override fun onBackPressed() {
-            val dialogView = layoutInflater.inflate(R.layout.dialog_exit, null)
-            val dialogMessage = dialogView.findViewById<TextView>(R.id.dialog_message)
-            val btnExit = dialogView.findViewById<TextView>(R.id.btn_exit)
-            val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+    override fun onBackPressed() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_exit, null)
+        val dialogMessage = dialogView.findViewById<TextView>(R.id.dialog_message)
+        val btnExit = dialogView.findViewById<Button>(R.id.btn_exit)
+        val close = dialogView.findViewById<ImageView>(R.id.close)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
 
-            val dialogBuilder = AlertDialog.Builder(this, R.style.CustomAlertDialogStyle)
-                .setView(dialogView)
-                .setCancelable(false)
+        val dialogBuilder = AlertDialog.Builder(this, R.style.CustomAlertDialogStyle)
+            .setView(dialogView)
+            .setCancelable(false)
 
-            val alertDialog = dialogBuilder.create()
+        val alertDialog = dialogBuilder.create()
 
-            btnExit.setOnClickListener {
-                // Exit the app
-                finish()
-                alertDialog.dismiss()
-            }
 
-            btnCancel.setOnClickListener {
-                // Dismiss the dialog
-                alertDialog.dismiss()
-            }
-
-            alertDialog.show()
+        btnExit.setOnClickListener {
+            // Exit the app
+            finish()
+            super.onBackPressed()
+            alertDialog.dismiss()
         }
+
+        btnCancel.setOnClickListener {
+            // Dismiss the dialog
+            val appPackageName = packageName
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName")))
+            } catch (e: ActivityNotFoundException) {
+                // If Play Store app is not available, open the website version
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")))
+            }
+            Utils.logAnalytic("MenuActivity rate app clicked")
+
+        }
+        close.setOnClickListener(){
+            alertDialog.dismiss()
+        }
+
+        alertDialog.show()
+    }
 
     override fun onResume() {
         super.onResume()

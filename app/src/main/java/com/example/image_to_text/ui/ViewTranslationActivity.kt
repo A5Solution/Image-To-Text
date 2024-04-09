@@ -1,6 +1,7 @@
 package com.example.image_to_text.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ClipData
@@ -84,82 +85,85 @@ class ViewTranslationActivity : AppCompatActivity() {
         }
 
         val filePath = intent.getStringExtra("imageFilePath")
-        val yourString = intent.getStringExtra("yourString")
+        if (filePath != null) {
+            val yourString = intent.getStringExtra("yourString")
+            val bitmap = BitmapFactory.decodeFile(filePath)
+            back = findViewById(R.id.back)
+            imageView = findViewById(R.id.imageView)
+            copy = findViewById(R.id.copy)
+            share = findViewById(R.id.share)
+            save = findViewById(R.id.save)
+            imageView = findViewById(R.id.imageView)
+            imageView = findViewById(R.id.imageView)
+            sourceLanguage = findViewById(R.id.sourceLanguage)
 
-        val bitmap = BitmapFactory.decodeFile(filePath)
-        back = findViewById(R.id.back)
-        imageView = findViewById(R.id.imageView)
-        copy = findViewById(R.id.copy)
-        share = findViewById(R.id.share)
-        save = findViewById(R.id.save)
-        imageView = findViewById(R.id.imageView)
-        imageView = findViewById(R.id.imageView)
-        sourceLanguage = findViewById(R.id.sourceLanguage)
-
-        if (filePath.equals(null)){
-            imageView.visibility=View.GONE
-        }
-        back.setOnClickListener {
+            back.setOnClickListener {
                 finish()
-        }
-
-        copy.setOnClickListener {
-            yourString?.let { it1 -> copyTextToClipboard(it1) }
-        }
-
-        save.setOnClickListener {
-            yourString?.let { it1 -> saveImageAndTextToSQLite(applicationContext,bitmap, it1) }
-        }
-
-        share.setOnClickListener {
-            yourString?.let { it1 -> shareImageAndText(bitmap, it1) }
-        }
-        imageView.setImageBitmap(bitmap)
-        sourceLanguage.text = yourString
-
-        var isSpeaking = false
-
-// Define a variable to store the text being spoken
-        var spokenText: String? = null
-
-// Initialize TextToSpeech in your activity
-        textToSpeech = TextToSpeech(
-            applicationContext
-        ) { status ->
-            if (status != TextToSpeech.ERROR) {
-                // Set language to Arabic
-                textToSpeech?.language = Locale("ar")
-            } else {
-                Toast.makeText(
-                    this@ViewTranslationActivity,
-                    "Text-to-Speech initialization failed",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-        val speaker: ImageView = findViewById(R.id.speaker)
-
-// Set click listener for the ImageView
-        speaker.setOnClickListener {
-            // Toggle playback state
-            isSpeaking = !isSpeaking
-
-            // Check if text is empty
-            if (sourceLanguage.text.isNullOrEmpty()) {
-                Toast.makeText(this, "Translate first", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
             }
 
-            // If speaking, pause; otherwise, speak the text
-            if (isSpeaking) {
-                spokenText = sourceLanguage.text.toString()
-                speakText(spokenText!!)
-            } else {
-                stopSpeaking()
+            copy.setOnClickListener {
+                yourString?.let { it1 -> copyTextToClipboard(it1) }
             }
+
+            save.setOnClickListener {
+                yourString?.let { it1 -> saveImageAndTextToSQLite(applicationContext,bitmap, it1) }
+            }
+
+            share.setOnClickListener {
+                yourString?.let { it1 -> shareImageAndText(bitmap, it1) }
+            }
+            imageView.setImageBitmap(bitmap)
+            sourceLanguage.text = yourString
+
+            var isSpeaking = false
+
+            // Define a variable to store the text being spoken
+            var spokenText: String? = null
+
+            // Initialize TextToSpeech in your activity
+            textToSpeech = TextToSpeech(
+                applicationContext
+            ) { status ->
+                if (status != TextToSpeech.ERROR) {
+                    // Set language to Arabic
+                    textToSpeech?.language = Locale("ar")
+                } else {
+                    Toast.makeText(
+                        this@ViewTranslationActivity,
+                        "Text-to-Speech initialization failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            val speaker: ImageView = findViewById(R.id.speaker)
+
+            // Set click listener for the ImageView
+            speaker.setOnClickListener {
+                // Toggle playback state
+                isSpeaking = !isSpeaking
+
+                // Check if text is empty
+                if (sourceLanguage.text.isNullOrEmpty()) {
+                    Toast.makeText(this, "Translate first", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                // If speaking, pause; otherwise, speak the text
+                if (isSpeaking) {
+                    spokenText = sourceLanguage.text.toString()
+                    speakText(spokenText!!)
+                } else {
+                    stopSpeaking()
+                }
+            }
+        } else {
+            Log.e(TAG, "No 'imageFilePath' extra provided in the intent")
+            Toast.makeText(this, "No image file provided", Toast.LENGTH_SHORT).show()
+            finish() // Finish the activity or handle the situation accordingly
         }
     }
+
     private fun speakText(text: String) {
         // Speak the text
         textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
@@ -169,6 +173,7 @@ class ViewTranslationActivity : AppCompatActivity() {
     private fun stopSpeaking() {
         textToSpeech?.stop()
     }
+
     private fun saveImageAndTextToSQLite(context: Context, bitmap: Bitmap, text: String) {
         val databaseHelper = DatabaseHelper(context)
         val imageData = convertBitmapToByteArray(bitmap)
@@ -188,17 +193,21 @@ class ViewTranslationActivity : AppCompatActivity() {
             //Toast.makeText(context, "Failed to save image and text to SQLite database", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun convertBitmapToByteArray(bitmap: Bitmap): ByteArray {
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
         return outputStream.toByteArray()
     }
+
     private fun copyTextToClipboard(text: String) {
         val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("text", text)
         clipboardManager.setPrimaryClip(clipData)
         Toast.makeText(this, "Text copied!", Toast.LENGTH_SHORT).show()
     }
+
+    @SuppressLint("SuspiciousIndentation")
     private fun showNotification(context: Context, title: String, message: String) {
         val notificationManager = NotificationManagerCompat.from(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -211,24 +220,22 @@ class ViewTranslationActivity : AppCompatActivity() {
             notificationManager.createNotificationChannel(channel)
         }
 
-            // Build the notification
+        // Build the notification
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Image Saved")
             .setContentText("Image has been saved successfully")
             .setSmallIcon(R.drawable.notification)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-            // Show the notification
-            if (ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-                return
-            }
+        // Show the notification
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+            return
+        }
     }
-
 
     private fun shareImageAndText(bitmap: Bitmap, text: String) {
         // Save the image to a temporary file

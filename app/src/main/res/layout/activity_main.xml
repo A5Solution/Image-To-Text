@@ -311,14 +311,6 @@
                                     android:layout_margin="8dp"
                                     android:src="@drawable/share_black"
                                     android:visibility="gone" />
-
-                                <ImageView
-                                    android:id="@+id/copy"
-                                    android:layout_width="30dp"
-                                    android:layout_height="25dp"
-                                    android:layout_margin="8dp"
-                                    android:src="@drawable/copy1"
-                                    android:visibility="gone" />
                             </LinearLayout>
                         </LinearLayout>
 
@@ -345,6 +337,12 @@
                                     android:layout_height="30dp"
                                     android:foreground="@drawable/ripple_effect"
                                     android:src="@drawable/ic_speaker" />
+                                <ImageView
+                                    android:id="@+id/copy"
+                                    android:layout_width="20dp"
+                                    android:layout_height="30dp"
+                                    android:layout_marginStart="10dp"
+                                    android:src="@drawable/ic_copy_gray" />
                             </LinearLayout>
 
                             <LinearLayout

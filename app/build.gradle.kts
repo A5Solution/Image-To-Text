@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
-
+    id ("com.google.firebase.crashlytics")
 }
 
 android {
@@ -13,8 +13,8 @@ android {
         applicationId = "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 6
-        versionName = "2.2.2"
+        versionCode = 9
+        versionName = "2.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,9 +29,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            resValue("string", "admob_open_id", "ca-app-pub-3940256099942544/9257395921")
+            resValue("string", "admob_open_id", " ca-app-pub-7055337155394452/2249735067")
             resValue("string", "admob_app_id", "ca-app-pub-4219822921938965~6037175836")
-            resValue("string", "admob_banner_id", "ca-app-pub-7055337155394452/4579603713")
+            resValue("string", "admob_banner_id", "ca-app-pub-7055337155394452/2249735067")
             resValue("string", "admob_native_id", "ca-app-pub-7055337155394452/3262799379")
             resValue("string", "admob_inter_id", "ca-app-pub-7055337155394452/3471919069")
 
@@ -135,6 +135,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
     implementation ("com.github.yalantis:ucrop:2.2.7")
+    implementation("com.google.firebase:firebase-crashlytics:18.6.2")
 
 
 

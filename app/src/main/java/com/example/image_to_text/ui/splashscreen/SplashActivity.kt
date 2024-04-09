@@ -37,10 +37,10 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
         val admobInter = AdmobInter()
         var admobInterId: String = ""
         var isPermissionPopupVisible: Boolean = true
+        lateinit var admobNative: AdmobNative
         lateinit var admobNativeId: String
         val admobOpen = AdmobOpen()
         var admobOpenId = ""
-        lateinit var admobNative: AdmobNative
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,6 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
         admobNative = AdmobNative()
         admobNativeId = getString(R.string.admob_native_id)
         admobNative.loadNativeAd1(this, admobNativeId)
-
         scanImageView = findViewById(R.id.scan)
         scanLine = findViewById(R.id.linescan)
         admobOpenId = getString(R.string.admob_open_id)
