@@ -13,8 +13,8 @@ android {
         applicationId = "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 9
-        versionName = "2.2.5"
+        versionCode = 10
+        versionName = "2.2.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -64,7 +64,7 @@ android {
         compose = true
         prefab = true
         viewBinding = true
-
+        dataBinding=true
     }
 
     composeOptions {
@@ -108,6 +108,7 @@ dependencies {
     implementation("com.google.mlkit:language-id-common:16.1.0")
     implementation("androidx.lifecycle:lifecycle-process:2.7.0")
     implementation("com.google.android.gms:play-services-measurement-api:21.6.1")
+    implementation("androidx.activity:activity:1.8.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -136,6 +137,8 @@ dependencies {
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
     implementation ("com.github.yalantis:ucrop:2.2.7")
     implementation("com.google.firebase:firebase-crashlytics:18.6.2")
+    implementation ("com.airbnb.android:lottie:4.0.0")
+    implementation ("com.google.android.play:app-update:2.0.0")
 
 
 

@@ -4,14 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.example.image_to_text.ui.splashscreen.SplashActivity.Companion.admobOpen
-import com.example.image_to_text.ui.splashscreen.SplashActivity.Companion.isPermissionPopupVisible
+import com.example.image_to_text.ui.activities.SplashActivity.Companion.admobOpen
+import com.example.image_to_text.ui.activities.SplashActivity.Companion.isPermissionPopupVisible
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -45,15 +44,15 @@ class ApplicationClass : Application(), LifecycleObserver, Application.ActivityL
     }
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onMoveToForeground() {
+        counter++
         Log.d("isPermissionPopupVisible", "onMoveToForeground: ${counter}")
-        if(counter<=6){
+        if(counter<=1){
             return
         }else{
             if (isPermissionPopupVisible) {
                 admobOpen.showOpenAd(context as Activity) {}
             }
         }
-
     }
     override fun onActivityCreated(p0: Activity, p1: Bundle?) {
     }

@@ -27,10 +27,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.example.image_to_text.databinding.ActivityCameraBinding
-import com.example.image_to_text.ui.MainActivity
-import com.example.image_to_text.ui.VIewModel.GraphicOverlay
-import com.example.image_to_text.ui.VIewModel.SharedViewModel
-import com.example.image_to_text.ui.VIewModel.TextGraphic
+import com.example.image_to_text.ui.ViewModel.GraphicOverlay
+import com.example.image_to_text.ui.ViewModel.SharedViewModel
+import com.example.image_to_text.ui.ViewModel.TextGraphic
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -39,14 +38,11 @@ import com.yalantis.ucrop.UCrop
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.ByteBuffer
 import java.util.concurrent.ExecutorService
-import android.graphics.ImageFormat
 import android.media.Image
-import android.media.ImageReader
 import com.example.image_to_text.R
-import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
-import com.example.image_to_text.ui.splashscreen.SplashActivity
+import com.example.image_to_text.ui.ViewModel.SubscriptionManager.SubscriptionManager
+import com.example.image_to_text.ui.utils.Utils
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import java.io.InputStream
@@ -66,6 +62,7 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater) // Inflate the binding layout
         setContentView(binding.root) // Use the root of the binding layout as the content view
+        Utils.logAnalytic("Camera Activity")
         viewModel = ViewModelProvider(this)[SharedViewModel::class.java]
         if (allPermissionsGranted()) {
             startCamera()
@@ -73,8 +70,6 @@ class CameraActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this as Activity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
-
-
         subscriptionManager = SubscriptionManager(this)
 
         val adView: AdView = binding.adView
@@ -89,13 +84,16 @@ class CameraActivity : AppCompatActivity() {
         } else {
             val adRequest = AdRequest.Builder().build()
             adView.loadAd(adRequest)
+            Utils.logAnalytic("Camera Activity banner ad showed")
         }
         // Your activity initialization code here
         binding.imageCaptureBtn.setOnClickListener {
+            Utils.logAnalytic("Camera Activity capture image")
             takePhoto()
             Toast.makeText(this, "please wait ...", Toast.LENGTH_LONG).show()
         }
         binding.save.setOnClickListener(){
+            Utils.logAnalytic("Camera Activity done button clicked")
             progressDialog = Dialog(this)
             progressDialog.setCanceledOnTouchOutside(false)
             progressDialog.setContentView(R.layout.custom_dialog)
@@ -130,9 +128,10 @@ class CameraActivity : AppCompatActivity() {
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-                    val intent = Intent(this, MainActivity::class.java).apply {
+                    val intent = Intent(this, TextExtractionActivity::class.java).apply {
                         putExtra("imageFilePath", file.absolutePath)
                         putExtra("string", stringBuilder.toString())
+                        finish()
                     }
                     progressDialog.dismiss()
                     startActivity(intent)
@@ -143,14 +142,17 @@ class CameraActivity : AppCompatActivity() {
 
         }
         binding.close.setOnClickListener(){
+            Utils.logAnalytic("Camera Activity close button clicked")
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }
         binding.flash.setOnClickListener(){
+            Utils.logAnalytic("Camera Activity flash button clicked")
             toggleFlashlight()
         }
         binding.gallery.setOnClickListener {
+            Utils.logAnalytic("Camera Activity gallery button clicked")
             openGallery()
         }
     }
@@ -174,9 +176,7 @@ class CameraActivity : AppCompatActivity() {
                     if (m != null) {
                         runTextRecognition(m)
                     }
-
                 }
-
                 override fun onError(exception: ImageCaptureException) {
                     super.onError(exception)
                     Log.d(TAG, "Image not captured")
@@ -188,7 +188,6 @@ class CameraActivity : AppCompatActivity() {
     private fun runTextRecognition(bitmap: Bitmap) {
         val image = InputImage.fromBitmap(bitmap, 0)
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
         recognizer.process(image)
             .addOnSuccessListener { texts ->
                 processTextRecognitionResult(texts)
@@ -286,6 +285,7 @@ class CameraActivity : AppCompatActivity() {
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val error = UCrop.getError(data!!)
             error?.printStackTrace()
+
             Toast.makeText(this, "Error cropping image", Toast.LENGTH_SHORT).show()
         }
     }
@@ -314,6 +314,7 @@ class CameraActivity : AppCompatActivity() {
         val blocks: List<Text.TextBlock> = texts.textBlocks
         if (blocks.isEmpty()) {
             Log.d(TAG, "No text found")
+
             Toast.makeText(this, "No text found", Toast.LENGTH_LONG).show()
             return
         }
@@ -416,6 +417,7 @@ class CameraActivity : AppCompatActivity() {
     }
     override fun onBackPressed() {
         super.onBackPressed()
+        Utils.logAnalytic("Camera Activity back button clicked")
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish() // Finish the current activity

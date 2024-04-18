@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.history.HistoryActivity">
+    tools:context=".ui.activities.HistoryActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout3"
@@ -44,6 +44,18 @@
             app:layout_constraintVertical_bias="0.5" />
 
         <!-- History Icon -->
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/premium"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:foreground="@drawable/ripple_effect"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
+            android:padding="5dp"
+            app:lottie_fileName="premium.json"
+            app:lottie_loop="true" />
         <ImageView
             android:id="@+id/delete"
             android:layout_width="40dp"
@@ -51,6 +63,7 @@
             android:padding="10dp"
             android:foreground="@drawable/ripple_effect"
             android:src="@drawable/delete"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -62,13 +75,12 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintVertical_weight="1"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="30dp"
         app:layout_constraintBottom_toTopOf="@+id/nativeAdContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintVertical_weight="1" />
 
     <FrameLayout
         android:id="@+id/nativeAdContainer"

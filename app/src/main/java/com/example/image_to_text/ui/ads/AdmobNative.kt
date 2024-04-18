@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.utils.Utils
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
@@ -31,6 +32,7 @@ class AdmobNative {
         }
         nativeLoading1 = true
         Log.d("AdmobNative", "Native 1 requested: ")
+        Utils.logAnalytic("The native ad requested.")
         val adLoader = AdLoader.Builder(context, adUnitId)
             .forNativeAd { nativeAd ->
                 mNativeAd1 = nativeAd
@@ -40,6 +42,7 @@ class AdmobNative {
                     nativeLoading1 = false
 //                    Toast.makeText(context, "native onAdLoaded 1: ", Toast.LENGTH_SHORT).show()
                     Log.d("AdmobNative", "onAdLoaded 1: ")
+                    Utils.logAnalytic("The native ad loaded.")
                 }
 
                 override fun onAdFailedToLoad(p0: LoadAdError) {
@@ -48,6 +51,7 @@ class AdmobNative {
 //                    Toast.makeText(context, "native onAdFailedToLoad 1: ", Toast.LENGTH_SHORT)
 //                        .show()
                     Log.d("AdmobNative", "onAdFailedToLoad 1: ")
+                    Utils.logAnalytic("The native ad failed admob.")
                 }
 
                 override fun onAdClicked() {
@@ -55,6 +59,7 @@ class AdmobNative {
                     nativeLoading1 = false
                     loadNativeAd1(context, adUnitId)
                     Log.d("AdmobNative", "onAdClicked 1: ")
+                    Utils.logAnalytic("The native ad clicked.")
                 }
 
                 override fun onAdImpression() {
@@ -62,6 +67,7 @@ class AdmobNative {
                     nativeLoading1 = false
 //                    Toast.makeText(context, "native onAdImpression 1: ", Toast.LENGTH_SHORT).show()
                     Log.d("AdmobNative", "onAdImpression 1: ")
+                    Utils.logAnalytic("The native ad impression.")
                     loadNativeAd1(context, adUnitId)
                 }
             })
@@ -84,6 +90,7 @@ class AdmobNative {
 
     fun showNativeAd1(nativeAd1: NativeAd, nativeAdContainer: FrameLayout) {
         Log.d("AdmobNative", "showNativeAd1 : ")
+        Utils.logAnalytic("The native ad showed.")
         val adView = LayoutInflater.from(nativeAdContainer.context)
             .inflate(R.layout.ad_native, null) as NativeAdView
         populateNativeAdView(nativeAd1, adView)

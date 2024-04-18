@@ -50,7 +50,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.example.image_to_text.ui.VIewModel.GraphicOverlay
+    <com.example.image_to_text.ui.ViewModel.GraphicOverlay
         android:id="@+id/graphic_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -14,11 +14,9 @@ import android.widget.ImageView
 import com.example.image_to_text.R
 import com.example.image_to_text.databinding.ActivityMenuBinding
 import com.example.image_to_text.ui.ApplicationClass
-import com.example.image_to_text.ui.SubscriptionManager.SubscriptionManager
-import com.example.image_to_text.ui.TranslationsActivity
+import com.example.image_to_text.ui.ViewModel.SubscriptionManager.SubscriptionManager
 import com.example.image_to_text.ui.ads.AdmobInter
-import com.example.image_to_text.ui.inapp.InAppActivity
-import com.example.image_to_text.ui.splashscreen.SplashActivity
+import com.example.image_to_text.ui.utils.Utils
 
 class MenuActivity : AppCompatActivity() {
 
@@ -29,6 +27,7 @@ class MenuActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Utils.logAnalytic("MenuActivity")
         subscriptionManager = SubscriptionManager(this)
 
         val isMonthlySubscriptionActive = subscriptionManager.isMonthlySubscriptionActive()
@@ -49,26 +48,19 @@ class MenuActivity : AppCompatActivity() {
 
         // Set OnClickListener on the close ImageView
         closeImageView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity close button clicked")
             // Handle the click event here
             finish() // Close the activity
         }
         // Set click listeners for menu items
         binding.removeAdsTextView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity premium button clicked")
             startActivity(Intent(this, InAppActivity::class.java))
         }
 
         binding.translateTextToTextTextView.setOnClickListener {
-            SplashActivity.admobInter.showInterAd(this@MenuActivity) {
-                SplashActivity.admobInter.loadInterAd(
-                    this,
-                    SplashActivity.admobInterId
-                )
-                startActivity(Intent(this, TranslationsActivity::class.java))
-            }
-            if(AdmobInter.isClicked){
-                startActivity(Intent(this, TranslationsActivity::class.java))
-            }
-
+            Utils.logAnalytic("MenuActivity TextToText button clicked")
+            startActivity(Intent(this, TranslationsActivity::class.java))
         }
 
         // Uncomment the lines below to add click listeners for other menu items
@@ -79,18 +71,21 @@ class MenuActivity : AppCompatActivity() {
         */
 
         binding.shareAppTextView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity share app button clicked")
             val websiteUri = Uri.parse("https://play.google.com/store/apps/details?id=com.image.to.text.ocrscanner.textconverter.extract.text.translateapp")
             val intent = Intent(Intent.ACTION_VIEW, websiteUri)
             startActivity(intent)
         }
 
         binding.privacyPolicyTextView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity privacy policy button clicked")
             val websiteUri = Uri.parse("https://sites.google.com/view/image-to-text-ocr-extract/home")
             val intent = Intent(Intent.ACTION_VIEW, websiteUri)
             startActivity(intent)
         }
 
         binding.rateAppTextView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity rate dialogue")
             progressDialog = Dialog(this)
             progressDialog.setCanceledOnTouchOutside(false)
             progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // Hide the title bar
@@ -101,6 +96,7 @@ class MenuActivity : AppCompatActivity() {
             val imageView2 = progressDialog.findViewById<ImageView>(R.id.cancel)
 
             imageView1.setOnClickListener {
+                Utils.logAnalytic("MenuActivity rate yes button clicked")
                 // Handle click on imageView1
                 progressDialog.dismiss()
 
@@ -117,6 +113,7 @@ class MenuActivity : AppCompatActivity() {
             imageView2.setOnClickListener {
                 // Handle click on imageView2
                 // For example:
+                Utils.logAnalytic("MenuActivity rate cancel  button clicked")
                 progressDialog.dismiss()
             }
 
@@ -125,12 +122,14 @@ class MenuActivity : AppCompatActivity() {
         }
 
         binding.moreAppTextView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity more apps button clicked")
             val websiteUri = Uri.parse("https://play.google.com/store/apps/developer?id=Sparx+Developer")
             val intent = Intent(Intent.ACTION_VIEW, websiteUri)
             startActivity(intent)
         }
 
         binding.termsAndConditionsTextView.setOnClickListener {
+            Utils.logAnalytic("MenuActivity terms and conditions button clicked")
             val websiteUri = Uri.parse("https://sites.google.com/view/terms-and-conditions-image-to-/home")
             val intent = Intent(Intent.ACTION_VIEW, websiteUri)
             startActivity(intent)

@@ -20,12 +20,12 @@
     <uses-feature android:name="android.hardware.camera.flash" />
 
     <application
+        android:name=".ui.ApplicationClass"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/logo_app"
-        android:name=".ui.ApplicationClass"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/logo_app"
@@ -34,13 +34,23 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ui.activities.VoiceTranslationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.ImageTranslationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.TextExtractionActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.activities.MenuActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activities.CameraActivity"
             android:exported="false" />
+
         <service
-            android:name=".ui.notifications.MyFirebaseMessagingService"
+            android:name=".ui.utils.MyFirebaseMessagingService"
             android:directBootAware="true"
             android:exported="false">
             <intent-filter>
@@ -49,10 +59,10 @@
         </service>
 
         <activity
-            android:name=".ui.inapp.InAppActivity"
+            android:name=".ui.activities.InAppActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.history.HistoryActivity"
+            android:name=".ui.activities.HistoryActivity"
             android:exported="false" />
 
         <provider
@@ -66,13 +76,13 @@
         </provider>
 
         <activity
-            android:name=".ui.ViewTranslationActivity"
+            android:name=".ui.activities.ViewTranslationActivity"
             android:exported="false" />
         <activity
             android:name=".ui.nativead.NativeAdActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.splashscreen.SplashActivity"
+            android:name=".ui.activities.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -81,11 +91,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.TranslationsActivity"
+            android:name=".ui.activities.TranslationsActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.activities.MainActivity"
             android:exported="false"
             android:label="@string/app_name" />
 

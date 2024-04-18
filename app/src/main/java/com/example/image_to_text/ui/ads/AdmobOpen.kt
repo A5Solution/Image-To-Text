@@ -3,7 +3,8 @@ package com.example.image_to_text.ui.ads
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.example.image_to_text.ui.splashscreen.SplashActivity
+import com.example.image_to_text.ui.activities.SplashActivity
+import com.example.image_to_text.ui.utils.Utils
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -19,6 +20,7 @@ class AdmobOpen :Activity() {
     fun loadOpenAd(context: Context, adLoaded: (Boolean) -> Unit) {
         if (myOpenAd != null) {
             Log.d("MyOpenAd", "loadOpenAd: no need")
+            Utils.logAnalytic("The openAd ad loaded.")
             adLoaded.invoke(false)
         } else {
             val request = AdRequest.Builder().build()
@@ -30,12 +32,14 @@ class AdmobOpen :Activity() {
                     override fun onAdFailedToLoad(p0: LoadAdError) {
                         adLoaded.invoke(true)
                         Log.d("MyOpenAd", "onAdFailedToLoad: open ad fail to load $p0")
+                        Utils.logAnalytic("The openAd ad failed to loaded.")
                     }
 
                     override fun onAdLoaded(ad: AppOpenAd) {
                         myOpenAd = ad
                         adLoaded.invoke(true)
                         Log.d("MyOpenAd", "onAdLoaded: open ad loaded success")
+                        Utils.logAnalytic("The openAd ad loaded success.")
                     }
                 })
         }
@@ -46,15 +50,18 @@ class AdmobOpen :Activity() {
         Log.d("MyOpenAd", "shown called")
         myOpenAd?.let { ad ->
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+
                 override fun onAdShowedFullScreenContent() {
                     super.onAdShowedFullScreenContent()
                     Log.d("MyOpenAd", "onAdLoaded: ad shown")
+                    Utils.logAnalytic("The openAd ad showed.")
                 }
 
                 override fun onAdDismissedFullScreenContent() {
                     super.onAdDismissedFullScreenContent()
                     myOpenAd = null
                     Log.d("MyOpenAd", "onAdDismissedFullScreenContent: ")
+                    Utils.logAnalytic("The openAd ad onAdDismissedFullScreenContent.")
                     loadOpenAd(activity) {}
                     isShow.invoke(true)
                 }
@@ -65,7 +72,6 @@ class AdmobOpen :Activity() {
                     loadOpenAd(activity) {}
                     isShow.invoke(true)
                 }
-
             }
             ad.show(activity)
         } ?: isShow.invoke(true)
