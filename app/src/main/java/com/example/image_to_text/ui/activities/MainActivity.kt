@@ -42,9 +42,14 @@ import com.example.image_to_text.databinding.ActivityMainBinding
 import com.example.image_to_text.ui.ApplicationClass.Companion.counter
 import com.example.image_to_text.ui.ModelLanguage
 import com.example.image_to_text.ui.ViewModel.SubscriptionManager.SubscriptionManager
-import com.example.image_to_text.ui.utils.Utils
-import com.example.image_to_text.ui.ads.AdmobInter
+
 import com.example.image_to_text.ui.ads.AdmobInter.Companion.isClicked
+import com.example.image_to_text.ui.utils.Utils
+import com.facebook.ads.Ad
+import com.facebook.ads.AdError
+import com.facebook.ads.AdSize
+import com.facebook.ads.AdView
+import com.facebook.ads.RewardedInterstitialAdListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -70,7 +75,6 @@ import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
 
     private val REQUEST_CAMERA = 1
     private val REQUEST_GALLERY = 2
@@ -98,18 +102,46 @@ class MainActivity : AppCompatActivity() {
     private lateinit var share: ImageView
     private lateinit var subscriptionManager: SubscriptionManager
     private var textToSpeech: TextToSpeech? = null
+    private var adView: AdView? = null
 
-    companion object {
-        private const val PERMISSION_REQUEST_CODE = 100
-        var fuckingText: String = ""
-        const val REQUEST_CODE_APP_UPDATE = 100
-    }
+    private lateinit var binding: ActivityMainBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        /*val rewardedInterstitialAdManager = RewardedInterstitialAdManager(this, "437465911980806_437548158639248")
+        rewardedInterstitialAdManager.loadAd(object : RewardedInterstitialAdListener {
+            fun onRewardedInterstitialAdLoaded() {
+                rewardedInterstitialAdManager.showAd()
+            } // Implement other listener methods as needed
+
+            override fun onError(p0: Ad?, p1: AdError?) {
+
+            }
+
+            override fun onAdLoaded(p0: Ad?) {
+
+            }
+
+            override fun onAdClicked(p0: Ad?) {
+
+            }
+
+            override fun onLoggingImpression(p0: Ad?) {
+
+            }
+
+            override fun onRewardedInterstitialCompleted() {
+
+            }
+
+            override fun onRewardedInterstitialClosed() {
+
+            }
+        })*/
         Utils.logAnalytic("MainActivity Activity")
         subscriptionManager = SubscriptionManager(this)
         val appUpdateManager = AppUpdateManagerFactory.create(this)
@@ -865,5 +897,11 @@ class MainActivity : AppCompatActivity() {
         }
         count=0
         counter++
+    }
+
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 100
+        var fuckingText: String = ""
+        const val REQUEST_CODE_APP_UPDATE = 100
     }
 }

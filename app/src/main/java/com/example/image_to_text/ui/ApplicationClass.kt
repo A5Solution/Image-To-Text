@@ -11,14 +11,23 @@ import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.image_to_text.ui.activities.SplashActivity.Companion.admobOpen
 import com.example.image_to_text.ui.activities.SplashActivity.Companion.isPermissionPopupVisible
+import com.example.image_to_text.ui.helpers.koin.modulesList
+import com.facebook.ads.AdSettings
+import com.facebook.ads.AudienceNetworkAds
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class ApplicationClass : Application(), LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(applicationContext)
+        AudienceNetworkAds.initialize(this);
+        AdSettings.addTestDevice("96bb0dff-837d-4352-b348-d8b616c6a49c")
+        initKoin()
+
         context = this
         registerActivityLifecycleCallbacks(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
@@ -29,6 +38,12 @@ class ApplicationClass : Application(), LifecycleObserver, Application.ActivityL
     }
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
+    }
+    private fun initKoin() {
+        startKoin {
+            androidContext(this@ApplicationClass)
+            modules(modulesList)
+        }
     }
     companion object {
         @Volatile

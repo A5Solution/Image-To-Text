@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import com.example.image_to_text.R
+import com.example.image_to_text.ui.activities.MainActivity
 import com.example.image_to_text.ui.utils.Utils
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader

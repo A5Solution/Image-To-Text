@@ -21,6 +21,30 @@
     <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+    <style name="AdsButtonShapeAppearance">
+        <item name="cornerSizeTopLeft">32dp</item>
+        <item name="cornerSizeTopRight">32dp</item>
+        <item name="cornerSizeBottomLeft">32dp</item>
+        <item name="cornerSizeBottomRight">32dp</item>
+    </style>
 
+    <style name="AdsButtonShapeMediumAppearance">
+        <item name="cornerSizeTopLeft">10dp</item>
+        <item name="cornerSizeTopRight">10dp</item>
+        <item name="cornerSizeBottomLeft">10dp</item>
+        <item name="cornerSizeBottomRight">10dp</item>
+    </style>
+    <style name="AdsButtonStyleMedium" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/appColor</item>
+        <item name="rippleColor">@color/appColor</item>
+        <item name="shapeAppearance">@style/AdsButtonShapeMediumAppearance</item>
+    </style>
+    <style name="AdsButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/appColor</item>
+        <item name="rippleColor">@color/appColor</item>
+        <item name="shapeAppearance">@style/AdsButtonShapeAppearance</item>
+    </style>
     <string name="ad_attribution">Ad</string>
 </resources>

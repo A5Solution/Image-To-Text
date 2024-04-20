@@ -79,8 +79,9 @@
             android:name=".ui.activities.ViewTranslationActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.nativead.NativeAdActivity"
-            android:exported="false" />
+            android:name="com.facebook.ads.AudienceNetworkActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+            tools:replace="android:configChanges" />
         <activity
             android:name=".ui.activities.SplashActivity"
             android:exported="true">

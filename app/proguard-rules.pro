@@ -43,3 +43,16 @@
 -dontwarn org.jspecify.nullness.Nullable
 -dontwarn reactor.blockhound.integration.BlockHoundIntegration
 # Other libraries...
+# Please add these rules to your existing keep rules in order to suppress warnings.
+# This is generated automatically by the Android Gradle plugin.
+-dontwarn com.facebook.infer.annotation.Nullsafe$Mode
+-dontwarn com.facebook.infer.annotation.Nullsafe
+-dontwarn com.google.android.gms.vision.Frame$Builder
+-dontwarn com.google.android.gms.vision.Frame$Metadata
+-dontwarn com.google.android.gms.vision.Frame
+-dontwarn com.google.android.gms.vision.text.Element
+-dontwarn com.google.android.gms.vision.text.Line
+-dontwarn com.google.android.gms.vision.text.Text
+-dontwarn com.google.android.gms.vision.text.TextBlock
+-dontwarn com.google.android.gms.vision.text.TextRecognizer$Builder
+-dontwarn com.google.android.gms.vision.text.TextRecognizer
