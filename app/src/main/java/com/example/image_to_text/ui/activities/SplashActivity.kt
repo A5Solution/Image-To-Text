@@ -33,9 +33,9 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
 
     companion object {
         val admobInter = AdmobInter()
+        val admobNative = AdmobNative()
         var admobInterId: String = ""
         var isPermissionPopupVisible: Boolean = true
-        lateinit var admobNative: AdmobNative
         lateinit var admobNativeId: String
         val admobOpen = AdmobOpen()
         var admobOpenId = ""
@@ -44,7 +44,6 @@ class SplashActivity : AppCompatActivity(), PurchasesUpdatedListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-        admobNative = AdmobNative()
         admobNativeId = getString(R.string.admob_native_id)
         admobNative.loadNativeAd1(this, admobNativeId)
         scanImageView = findViewById(R.id.scan)

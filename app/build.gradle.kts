@@ -13,8 +13,8 @@ android {
         applicationId = "com.image.to.text.ocrscanner.textconverter.extract.text.translateapp"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10
-        versionName = "2.2.6"
+        versionCode = 11
+        versionName = "2.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
